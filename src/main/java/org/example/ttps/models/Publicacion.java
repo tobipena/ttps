@@ -1,7 +1,7 @@
 package org.example.ttps.models;
 
 import org.example.ttps.models.enums.TipoPublicacion;
-
+import jakarta.persistence.*;
 import javax.persistence.*;
 import java.util.Date;
 
