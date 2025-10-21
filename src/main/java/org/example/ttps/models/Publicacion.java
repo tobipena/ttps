@@ -2,7 +2,7 @@ package org.example.ttps.models;
 
 import org.example.ttps.models.enums.TipoPublicacion;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
