@@ -1,8 +1,9 @@
 package org.example.ttps.models;
 
+import org.example.ttps.models.enums.Estado;
 import org.example.ttps.models.enums.Rol;
+
 import jakarta.persistence.*;
-import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -20,6 +21,7 @@ public class Usuario {
     private String ciudad;
     private Integer puntos;
     private Rol rol;
+    private String estado;
 
     @OneToMany
     private List<Publicacion> publicaciones;

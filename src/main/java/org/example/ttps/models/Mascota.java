@@ -3,7 +3,7 @@ package org.example.ttps.models;
 import jakarta.persistence.*;
 import org.example.ttps.models.enums.Estado;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="MASCOTA")
