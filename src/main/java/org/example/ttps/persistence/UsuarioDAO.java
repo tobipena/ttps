@@ -1,6 +1,5 @@
 package org.example.ttps.persistence;
 import org.example.ttps.models.Usuario;
-import org.example.ttps.models.enums.Estado;
 import org.example.ttps.models.enums.Rol;
 
 import java.util.List;

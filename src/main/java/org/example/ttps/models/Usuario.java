@@ -1,6 +1,5 @@
 package org.example.ttps.models;
 
-import org.example.ttps.models.enums.Estado;
 import org.example.ttps.models.enums.Rol;
 
 import jakarta.persistence.*;
@@ -79,5 +78,9 @@ public class Usuario {
 
     public void setCiudad(String ciudad) {
         this.ciudad = ciudad;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
