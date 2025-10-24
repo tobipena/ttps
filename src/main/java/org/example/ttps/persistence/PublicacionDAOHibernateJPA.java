@@ -1,11 +1,8 @@
 package org.example.ttps.persistence;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import org.example.ttps.models.Mascota;
 import org.example.ttps.models.Publicacion;
 import org.example.ttps.models.Usuario;
-import org.example.ttps.models.enums.TipoPublicacion;
 
 import java.util.Collections;
 import java.util.Date;

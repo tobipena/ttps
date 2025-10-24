@@ -86,6 +86,25 @@ public class UsuarioDAOTest {
 
     @Test
     public void testRecuperacionUsuarios() {
+        Usuario u = new Usuario();
+        u.setNombre("Laura");
+        u.setEmail("laura@test.com");
+        u.setPassword("pass");
+        Usuario u2 = new Usuario();
+        u2.setNombre("Iane");
+        u2.setEmail("iane@test.com");
+        u2.setPassword("pass");
+        Usuario u3 = new Usuario();
+        u3.setNombre("tobi");
+        u3.setEmail("tobi@test.com");
+        u3.setPassword("pass");
+
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        usuarioDAO.persist(u);
+        usuarioDAO.persist(u2);
+        usuarioDAO.persist(u3);
+        tx.commit();
         List<Usuario> usuarios = usuarioDAO.getAll("id");
         assertNotNull(usuarios);
     }

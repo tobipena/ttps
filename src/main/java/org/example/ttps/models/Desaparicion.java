@@ -1,13 +1,12 @@
 package org.example.ttps.models;
 
-import org.example.ttps.models.enums.TipoPublicacion;
-
 import jakarta.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
-@Table(name="PUBLICACION")
-public class Publicacion {
+@Table(name="DESAPARICION")
+public class Desaparicion {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +21,8 @@ public class Publicacion {
     @OneToOne
     private Mascota mascota;
 
-    private TipoPublicacion tipoPublicacion;
+    @OneToMany
+    private List<Avistamiento> avistamientos;
 
     public String getComentario() {
         return comentario;

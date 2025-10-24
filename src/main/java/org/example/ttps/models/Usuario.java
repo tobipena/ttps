@@ -23,7 +23,10 @@ public class Usuario {
     private String estado;
 
     @OneToMany
-    private List<Publicacion> publicaciones;
+    private List<Desaparicion> desapariciones;
+
+    @OneToMany
+    private List<Avistamiento> avistamientos;
 
     @OneToMany
     private List<Mascota> mascotas;

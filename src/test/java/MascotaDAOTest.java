@@ -19,6 +19,7 @@ public class MascotaDAOTest {
     }
     @AfterEach
     public void tearDown() {
+        mascotaDAO.getAll(null).forEach(em::remove);
         if (em.isOpen()) {
             em.close();
         }
@@ -80,6 +81,18 @@ public class MascotaDAOTest {
 
     @Test
     public void testRecuperacionMascotas() {
+        Mascota m = new Mascota();
+        m.setNombre("Luna");
+        Mascota m2 = new Mascota();
+        m.setNombre("tobi");
+        Mascota m3 = new Mascota();
+        m.setNombre("juampe");
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        mascotaDAO.persist(m);
+        mascotaDAO.persist(m2);
+        mascotaDAO.persist(m3);
+        tx.commit();
         List<Mascota> mascotas = mascotaDAO.getAll("id");
         assertNotNull(mascotas);
     }

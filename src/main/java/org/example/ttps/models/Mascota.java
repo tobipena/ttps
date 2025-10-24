@@ -3,7 +3,6 @@ package org.example.ttps.models;
 import jakarta.persistence.*;
 import org.example.ttps.models.enums.Estado;
 
-import jakarta.persistence.*;
 
 @Entity
 @Table(name="MASCOTA")
@@ -20,12 +19,11 @@ public class Mascota {
     private Estado estado;
 
     @ManyToOne
-    private Usuario dueño;
+    private Usuario publicador;
 
     @OneToOne
-    private Publicacion publicacion;
+    private Desaparicion desaparicion;
 
-    // Getters/Setters mínimos añadidos para tests
     public Long getId() {
         return id;
     }

@@ -2,7 +2,6 @@ package org.example.ttps.persistence;
 
 import org.example.ttps.models.Publicacion;
 import org.example.ttps.models.Usuario;
-import org.example.ttps.models.enums.TipoPublicacion;
 
 import java.util.Date;
 import java.util.List;

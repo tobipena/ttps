@@ -87,6 +87,24 @@ public class PublicacionDAOTest {
 
     @Test
     public void testRecuperacionPublicaciones() {
+        Publicacion p = new Publicacion();
+        p.setComentario("Perdido cachorro");
+        p.setCoordenada("-34.7,-58.6");
+        p.setFecha(new Date());
+        Publicacion p2 = new Publicacion();
+        p.setComentario("Perdido");
+        p.setCoordenada("-34.7,-58.6");
+        p.setFecha(new Date());
+        Publicacion p3 = new Publicacion();
+        p.setComentario("Perdido amigo");
+        p.setCoordenada("-34.7,-58.6");
+        p.setFecha(new Date());
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        publicacionDAO.persist(p);
+        publicacionDAO.persist(p2);
+        publicacionDAO.persist(p3);
+        tx.commit();
         List<Publicacion> publicaciones = publicacionDAO.getAll("id");
         assertNotNull(publicaciones);
     }
