@@ -2,6 +2,8 @@ package org.example.ttps.persistence;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import org.example.ttps.models.Avistamiento;
+import org.example.ttps.models.Desaparicion;
 import org.example.ttps.models.Usuario;
 import org.example.ttps.models.enums.Rol;
 
@@ -106,6 +108,36 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario>
                     .getResultList();
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            em.close();
+        }
+        return result;
+    }
+
+    public List<Desaparicion> getDesapariciones(Usuario usuario){
+        EntityManager em = EMF.getEMF().createEntityManager();
+        List<Desaparicion> result = Collections.emptyList();
+        try{
+            result = em.createQuery("SELECT d FROM Desaparicion d JOIN Usuario u ON d.usuario = :usuario", Desaparicion.class)
+                    .setParameter("usuario", usuario)
+                    .getResultList();
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+        return result;
+    }
+
+    public List<Avistamiento> getAvistamientos(Usuario usuario){
+        EntityManager em = EMF.getEMF().createEntityManager();
+        List<Avistamiento> result = Collections.emptyList();
+        try{
+            result = em.createQuery("SELECT a FROM Avistamiento a JOIN Usuario u ON a.usuario = :usuario", Avistamiento.class)
+                    .setParameter("usuario", usuario)
+                    .getResultList();
+        } catch(Exception e) {
+            e.printStackTrace();
         } finally {
             em.close();
         }

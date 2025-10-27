@@ -125,31 +125,34 @@ public class UsuarioDAOTest {
         u.setEmail("carlos@test.com");
         u.setPassword("pass");
 
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        usuarioDAO.persist(u);
+        tx.commit();
+
         Desaparicion d = new Desaparicion();
         d.setComentario("Perdido perro");
         d.setCoordenada("-34.7,-58.6");
         d.setFecha(new Date());
+        d.setUsuario(u);
         u.addDesaparicion(d);
 
         Avistamiento avistamiento = new Avistamiento();
         avistamiento.setComentario("Vi un perro");
         avistamiento.setCoordenada("-34.8,-58.7");
         avistamiento.setFecha(new Date());
+        avistamiento.setUsuario(u);
         u.addAvistamiento(avistamiento);
 
-        EntityTransaction tx = em.getTransaction();
         tx.begin();
         desaparicionDAO.persist(d);
         avistamientoDAO.persist(avistamiento);
-        usuarioDAO.persist(u);
         tx.commit();
 
-        EntityTransaction tx2 = em.getTransaction();
-        tx2.begin();
-        Usuario recuperado = em.find(Usuario.class, u.getId());
-        tx2.commit();
+        List<Desaparicion> desaparicionesRecuperadas = usuarioDAO.getDesapariciones(u);
+        List<Avistamiento> avistamientosRecuperados = usuarioDAO.getAvistamientos(u);
 
-        assertFalse(recuperado.getDesapariciones().isEmpty());
-        assertFalse(recuperado.getAvistamientos().isEmpty());
+        assertFalse(desaparicionesRecuperadas.isEmpty());
+        assertFalse(avistamientosRecuperados.isEmpty());
     }
 }
