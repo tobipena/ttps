@@ -1,6 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.ttps.models.Desaparicion;
+import org.example.ttps.models.Mascota;
 import org.example.ttps.persistence.EMF;
 import org.example.ttps.persistence.DesaparicionDAOHibernateJPA;
 import org.junit.jupiter.api.*;
@@ -32,6 +33,10 @@ public class DesaparicionDAOTest {
         p.setComentario("Se perdió un perro");
         p.setCoordenada("-34.5,-58.4");
         p.setFecha(new Date());
+        Mascota m = new Mascota();
+        m.setNombre("Firulais");
+        p.setMascota(m);
+
 
         EntityTransaction tx = em.getTransaction();
         tx.begin();
@@ -49,6 +54,9 @@ public class DesaparicionDAOTest {
         p.setComentario("Encontrado gato");
         p.setCoordenada("-34.6,-58.5");
         p.setFecha(new Date());
+        Mascota m = new Mascota();
+        m.setNombre("Sol");
+        p.setMascota(m);
 
         EntityTransaction tx = em.getTransaction();
         tx.begin();
@@ -70,6 +78,9 @@ public class DesaparicionDAOTest {
         p.setComentario("Perdido cachorro");
         p.setCoordenada("-34.7,-58.6");
         p.setFecha(new Date());
+        Mascota m = new Mascota();
+        m.setNombre("iane");
+        p.setMascota(m);
 
         EntityTransaction tx = em.getTransaction();
         tx.begin();
@@ -92,14 +103,23 @@ public class DesaparicionDAOTest {
         p.setComentario("Perdido cachorro");
         p.setCoordenada("-34.7,-58.6");
         p.setFecha(new Date());
+        Mascota m = new Mascota();
+        m.setNombre("luna");
+        p.setMascota(m);
         Desaparicion p2 = new Desaparicion();
         p2.setComentario("Perdido");
         p2.setCoordenada("-34.7,-58.6");
         p2.setFecha(new Date());
+        Mascota m2 = new Mascota();
+        m2.setNombre("nina");
+        p2.setMascota(m2);
         Desaparicion p3 = new Desaparicion();
         p3.setComentario("Perdido amigo");
         p3.setCoordenada("-34.7,-58.6");
         p3.setFecha(new Date());
+        Mascota m3 = new Mascota();
+        m3.setNombre("betun");
+        p3.setMascota(m3);
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         desaparicionDAO.persist(p);

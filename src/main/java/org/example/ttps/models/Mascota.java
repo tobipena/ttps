@@ -21,7 +21,7 @@ public class Mascota {
     @ManyToOne
     private Usuario publicador;
 
-    @OneToOne
+    @OneToOne(mappedBy="mascota")
     private Desaparicion desaparicion;
 
     public Long getId() {

@@ -18,7 +18,8 @@ public class Desaparicion {
     @ManyToOne
     private Usuario usuario;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "mascota_id")
     private Mascota mascota;
 
     @OneToMany
@@ -61,5 +62,10 @@ public class Desaparicion {
     }
 
     public void setUsuario(Usuario usuario) {this.usuario = usuario;}
+
     public Usuario getUsuario() {return usuario;}
+
+    public void setMascota(Mascota mascota) {this.mascota = mascota;}
+
+    public Mascota getMascota() {return mascota;}
 }
