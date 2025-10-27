@@ -59,4 +59,7 @@ public class Desaparicion {
     public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
+
+    public void setUsuario(Usuario usuario) {this.usuario = usuario;}
+    public Usuario getUsuario() {return usuario;}
 }

@@ -1,11 +1,16 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.example.ttps.models.Avistamiento;
+import org.example.ttps.models.Desaparicion;
 import org.example.ttps.models.Usuario;
+import org.example.ttps.persistence.AvistamientoDAOHibernateJPA;
+import org.example.ttps.persistence.DesaparicionDAOHibernateJPA;
 import org.example.ttps.persistence.EMF;
 import org.example.ttps.persistence.UsuarioDAOHibernateJPA;
 import org.junit.jupiter.api.*;
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Date;
 
 public class UsuarioDAOTest {
 
@@ -20,6 +25,7 @@ public class UsuarioDAOTest {
     @AfterEach
     public void tearDown() {
         if (em.isOpen()) {
+            em.clear();
             em.close();
         }
     }
@@ -106,6 +112,44 @@ public class UsuarioDAOTest {
         usuarioDAO.persist(u3);
         tx.commit();
         List<Usuario> usuarios = usuarioDAO.getAll("id");
-        assertNotNull(usuarios);
+        assertFalse(usuarios.isEmpty());
+    }
+
+    @Test
+    public void testUsuarioPublicaciones(){
+        DesaparicionDAOHibernateJPA desaparicionDAO = new DesaparicionDAOHibernateJPA();
+        AvistamientoDAOHibernateJPA avistamientoDAO = new AvistamientoDAOHibernateJPA();
+
+        Usuario u = new Usuario();
+        u.setNombre("Carlos");
+        u.setEmail("carlos@test.com");
+        u.setPassword("pass");
+
+        Desaparicion d = new Desaparicion();
+        d.setComentario("Perdido perro");
+        d.setCoordenada("-34.7,-58.6");
+        d.setFecha(new Date());
+        u.addDesaparicion(d);
+
+        Avistamiento avistamiento = new Avistamiento();
+        avistamiento.setComentario("Vi un perro");
+        avistamiento.setCoordenada("-34.8,-58.7");
+        avistamiento.setFecha(new Date());
+        u.addAvistamiento(avistamiento);
+
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        desaparicionDAO.persist(d);
+        avistamientoDAO.persist(avistamiento);
+        usuarioDAO.persist(u);
+        tx.commit();
+
+        EntityTransaction tx2 = em.getTransaction();
+        tx2.begin();
+        Usuario recuperado = em.find(Usuario.class, u.getId());
+        tx2.commit();
+
+        assertFalse(recuperado.getDesapariciones().isEmpty());
+        assertFalse(recuperado.getAvistamientos().isEmpty());
     }
 }

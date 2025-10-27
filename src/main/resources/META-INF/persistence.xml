@@ -7,7 +7,8 @@
     <persistence-unit name="unlp" transaction-type="RESOURCE_LOCAL">
         <class>org.example.ttps.models.Usuario</class>
         <class>org.example.ttps.models.Mascota</class>
-        <class>org.example.ttps.models.Publicacion</class>
+        <class>org.example.ttps.models.Desaparicion</class>
+        <class>org.example.ttps.models.Avistamiento</class>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"/>

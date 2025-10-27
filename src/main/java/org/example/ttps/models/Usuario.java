@@ -3,6 +3,8 @@ package org.example.ttps.models;
 import org.example.ttps.models.enums.Rol;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,6 +32,12 @@ public class Usuario {
 
     @OneToMany
     private List<Mascota> mascotas;
+
+    public Usuario() {
+        desapariciones = new ArrayList<Desaparicion>();
+        avistamientos = new ArrayList<Avistamiento>();
+        mascotas = new ArrayList<Mascota>();
+    }
 
     public Long getId() {
         return id;
@@ -86,4 +94,20 @@ public class Usuario {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public List<Avistamiento> getAvistamientos() {return avistamientos;}
+
+    public List<Desaparicion> getDesapariciones() {return desapariciones;}
+
+    public void addAvistamiento(Avistamiento avistamiento) {
+        this.avistamientos.add(avistamiento);
+    }
+
+    public void addDesaparicion(Desaparicion desaparicion) {
+        this.desapariciones.add(desaparicion);
+    }
+
+    public void setAvistamientos(List<Avistamiento> avistamientos) {this.avistamientos = avistamientos;}
+
+    public void setDesapariciones(List<Desaparicion> desapariciones) {this.desapariciones = desapariciones;}
 }
