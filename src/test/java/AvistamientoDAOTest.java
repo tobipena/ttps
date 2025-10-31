@@ -16,20 +16,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AvistamientoDAOTest {
 
     private AvistamientoDAOHibernateJPA avistamientoDAO;
-    private EntityManager em;
 
     @BeforeEach
     public void setUp() {
         avistamientoDAO = new AvistamientoDAOHibernateJPA();
-        em = EMF.getEMF().createEntityManager();
     }
 
     @AfterEach
     public void tearDown() {
-        if (em.isOpen()) {
-            em.clear();
-            em.close();
-        }
+
     }
 
     @Test
@@ -39,10 +34,7 @@ public class AvistamientoDAOTest {
         a.setCoordenada("-34.5,-58.4");
         a.setFecha(new Date());
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         avistamientoDAO.persist(a);
-        tx.commit();
 
         Avistamiento recuperado = avistamientoDAO.get(a.getId());
         assertNotNull(recuperado);
@@ -56,15 +48,11 @@ public class AvistamientoDAOTest {
         a.setCoordenada("-34.6,-58.5");
         a.setFecha(new Date());
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         avistamientoDAO.persist(a);
-        tx.commit();
 
         a.setComentario("vi un gato modificado");
-        tx.begin();
+
         avistamientoDAO.update(a);
-        tx.commit();
 
         Avistamiento actualizado = avistamientoDAO.get(a.getId());
         assertEquals("vi un gato modificado", actualizado.getComentario());
@@ -77,16 +65,11 @@ public class AvistamientoDAOTest {
         a.setCoordenada("-34.7,-58.6");
         a.setFecha(new Date());
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         avistamientoDAO.persist(a);
-        tx.commit();
 
         Long id = a.getId();
 
-        tx.begin();
         avistamientoDAO.delete(a);
-        tx.commit();
 
         Avistamiento eliminado = avistamientoDAO.get(id);
         assertNull(eliminado);
@@ -106,12 +89,11 @@ public class AvistamientoDAOTest {
         a3.setComentario("aviste un perro");
         a3.setCoordenada("-34.7,-58.6");
         a3.setFecha(new Date());
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+
         avistamientoDAO.persist(a);
         avistamientoDAO.persist(a2);
         avistamientoDAO.persist(a3);
-        tx.commit();
+
         List<Avistamiento> avistamientos = avistamientoDAO.getAll("id");
         assertFalse(avistamientos.isEmpty());
     }

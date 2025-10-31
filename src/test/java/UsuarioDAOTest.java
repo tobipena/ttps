@@ -15,19 +15,17 @@ import java.util.Date;
 public class UsuarioDAOTest {
 
     private UsuarioDAOHibernateJPA usuarioDAO;
-    private EntityManager em;
+    private DesaparicionDAOHibernateJPA desaparicionDAO;
+    private AvistamientoDAOHibernateJPA avistamientoDAO;
 
     @BeforeEach
     public void setUp() {
         usuarioDAO = new UsuarioDAOHibernateJPA();
-        em = EMF.getEMF().createEntityManager();
+        desaparicionDAO = new DesaparicionDAOHibernateJPA();
+        avistamientoDAO = new AvistamientoDAOHibernateJPA();
     }
     @AfterEach
     public void tearDown() {
-        if (em.isOpen()) {
-            em.clear();
-            em.close();
-        }
     }
 
     @Test
@@ -37,10 +35,7 @@ public class UsuarioDAOTest {
         u.setEmail("iane@test.com");
         u.setPassword("1234");
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         usuarioDAO.persist(u);
-        tx.commit();
 
         Usuario recuperado = usuarioDAO.get(u.getId());
         assertNotNull(recuperado);
@@ -54,15 +49,10 @@ public class UsuarioDAOTest {
         u.setEmail("juan@test.com");
         u.setPassword("abc");
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         usuarioDAO.persist(u);
-        tx.commit();
 
         u.setNombre("Juan Modificado");
-        tx.begin();
         usuarioDAO.update(u);
-        tx.commit();
 
         Usuario actualizado = usuarioDAO.get(u.getId());
         assertEquals("Juan Modificado", actualizado.getNombre());
@@ -75,16 +65,13 @@ public class UsuarioDAOTest {
         u.setEmail("laura@test.com");
         u.setPassword("pass");
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+
         usuarioDAO.persist(u);
-        tx.commit();
 
         Long id = u.getId();
 
-        tx.begin();
         usuarioDAO.delete(u);
-        tx.commit();
+
 
         Usuario eliminado = usuarioDAO.get(id);
         assertNull(eliminado);
@@ -105,30 +92,25 @@ public class UsuarioDAOTest {
         u3.setEmail("tobi@test.com");
         u3.setPassword("pass");
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+
         usuarioDAO.persist(u);
         usuarioDAO.persist(u2);
         usuarioDAO.persist(u3);
-        tx.commit();
+
         List<Usuario> usuarios = usuarioDAO.getAll("id");
         assertFalse(usuarios.isEmpty());
     }
 
     @Test
     public void testUsuarioPublicaciones(){
-        DesaparicionDAOHibernateJPA desaparicionDAO = new DesaparicionDAOHibernateJPA();
-        AvistamientoDAOHibernateJPA avistamientoDAO = new AvistamientoDAOHibernateJPA();
+
 
         Usuario u = new Usuario();
         u.setNombre("Carlos");
         u.setEmail("carlos@test.com");
         u.setPassword("pass");
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         usuarioDAO.persist(u);
-        tx.commit();
 
         Desaparicion d = new Desaparicion();
         d.setComentario("Perdido perro");
@@ -144,10 +126,8 @@ public class UsuarioDAOTest {
         avistamiento.setUsuario(u);
         u.addAvistamiento(avistamiento);
 
-        tx.begin();
         desaparicionDAO.persist(d);
         avistamientoDAO.persist(avistamiento);
-        tx.commit();
 
         List<Desaparicion> desaparicionesRecuperadas = usuarioDAO.getDesapariciones(u);
         List<Avistamiento> avistamientosRecuperados = usuarioDAO.getAvistamientos(u);

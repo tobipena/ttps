@@ -12,19 +12,14 @@ import java.util.List;
 public class DesaparicionDAOTest {
 
     private DesaparicionDAOHibernateJPA desaparicionDAO;
-    private EntityManager em;
 
     @BeforeEach
     public void setUp() {
         desaparicionDAO = new DesaparicionDAOHibernateJPA();
-        em = EMF.getEMF().createEntityManager();
     }
     @AfterEach
     public void tearDown() {
-        if (em.isOpen()) {
-            em.clear();
-            em.close();
-        }
+
     }
 
     @Test
@@ -38,10 +33,7 @@ public class DesaparicionDAOTest {
         p.setMascota(m);
 
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         desaparicionDAO.persist(p);
-        tx.commit();
 
         Desaparicion recuperado = desaparicionDAO.get(p.getId());
         assertNotNull(recuperado);
@@ -58,15 +50,11 @@ public class DesaparicionDAOTest {
         m.setNombre("Sol");
         p.setMascota(m);
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         desaparicionDAO.persist(p);
-        tx.commit();
 
         p.setComentario("Encontrado gato modificado");
-        tx.begin();
+
         desaparicionDAO.update(p);
-        tx.commit();
 
         Desaparicion actualizado = desaparicionDAO.get(p.getId());
         assertEquals("Encontrado gato modificado", actualizado.getComentario());
@@ -82,16 +70,11 @@ public class DesaparicionDAOTest {
         m.setNombre("iane");
         p.setMascota(m);
 
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         desaparicionDAO.persist(p);
-        tx.commit();
 
         Long id = p.getId();
 
-        tx.begin();
         desaparicionDAO.delete(p);
-        tx.commit();
 
         Desaparicion eliminado = desaparicionDAO.get(id);
         assertNull(eliminado);
@@ -120,12 +103,11 @@ public class DesaparicionDAOTest {
         Mascota m3 = new Mascota();
         m3.setNombre("betun");
         p3.setMascota(m3);
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+
         desaparicionDAO.persist(p);
         desaparicionDAO.persist(p2);
         desaparicionDAO.persist(p3);
-        tx.commit();
+
         List<Desaparicion> desapariciones = desaparicionDAO.getAll("id");
         assertFalse(desapariciones.isEmpty());
     }

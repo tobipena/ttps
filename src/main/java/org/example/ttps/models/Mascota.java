@@ -11,7 +11,7 @@ public class Mascota {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private String tamaño;
+    private String tamano;
     private String color;
     private byte[] foto;
     private String descripcion;
