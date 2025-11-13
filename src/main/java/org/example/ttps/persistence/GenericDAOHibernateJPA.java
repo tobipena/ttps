@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 import java.util.List;
 
 public class GenericDAOHibernateJPA<T> implements GenericDAO<T>{
-
+    @PersistenceContext
+    private EntityManager em;
 
     protected Class<T> persistentClass;
     public GenericDAOHibernateJPA(Class<T> clase) {
@@ -17,87 +18,34 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T>{
     }
     @Override
     public T persist(T entity) {
-        EntityManager em = EMF.getEMF().createEntityManager();
-        EntityTransaction tx = null;
-        try {
-            tx = em.getTransaction();
-            tx.begin();
-            em.persist(entity);
-            tx.commit();
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) tx.rollback();
-            throw e; // escribir en un log o mostrar mensaje
-        } finally {
-            em.close();
-        }
+        em.persist(entity);
         return entity;
     }
 
     @Override
     public T update(T entity) {
-        EntityManager em = EMF.getEMF().createEntityManager();
-        EntityTransaction etx = em.getTransaction();
-        etx.begin();
-        T entityMerged = em.merge(entity);
-        etx.commit();
-        em.close();
-        return entityMerged;
+        em.merge(entity);
+        return entity;
     }
     @Override
     public void delete(T entity) {
-        EntityTransaction tx = null;
-        try(EntityManager em = EMF.getEMF().createEntityManager()){
-            tx = em.getTransaction();
-            tx.begin();
-            em.remove(em.merge(entity));
-            tx.commit();
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) tx.rollback();
-            throw e; // escribir en un log o mostrar un mensaje
-        }
+        em.remove(em.contains(entity) ? entity : em.merge(entity));
     }
     public List<T> getAll(String columnOrder) {
-        Query consulta =
-                EMF.getEMF().createEntityManager()
-                        .createQuery("SELECT e FROM " +
+        return em.createQuery("SELECT e FROM " +
                                 getPersistentClass().getSimpleName() +
-                                " e order by e." + columnOrder);
-        List<T> resultado = (List<T>) consulta.getResultList();
-        return resultado;
+                                " e order by e." + columnOrder)
+                .getResultList();
     }
 
 
     @Override
     public void delete(Long id) {
-        EntityManager em = EMF.getEMF().createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try{
-            tx.begin();
-            T entity = (T) em.createQuery("SELECT m FROM " +
-                    this.getPersistentClass().getSimpleName() + " m WHERE m.id = :id")
-                    .setParameter("id", id).getSingleResult();
-            em.remove(em.merge(entity));
-            tx.commit();
-        } catch (RuntimeException e) {
-            if (tx.isActive()) tx.rollback();
-            throw e; // escribir en un log o mostrar un mensaje
-        }
-        finally{
-            em.close();
-        }
+        T entity = this.get(id);
+        if (entity != null) em.remove(entity);
     }
 
     public T get(Long id){
-        EntityManager em = EMF.getEMF().createEntityManager();
-        try{
-            return (T) em.createQuery(
-                    "SELECT m FROM " + this.getPersistentClass().getSimpleName() + " m WHERE m.id = :id")
-                    .setParameter("id", id)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        } finally{
-            em.close();
-        }
+        return em.find(persistentClass, id);
     }
 }
