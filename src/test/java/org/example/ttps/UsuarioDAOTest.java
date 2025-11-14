@@ -1,3 +1,5 @@
+package org.example.ttps;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.ttps.models.Avistamiento;
@@ -5,10 +7,9 @@ import org.example.ttps.models.Desaparicion;
 import org.example.ttps.models.Usuario;
 import org.example.ttps.persistence.AvistamientoDAOHibernateJPA;
 import org.example.ttps.persistence.DesaparicionDAOHibernateJPA;
-import org.example.ttps.persistence.EMF;
 import org.example.ttps.persistence.UsuarioDAOHibernateJPA;
 import org.junit.jupiter.api.*;
-import jakarta.persistence.*;
+
 import java.util.List;
 import java.util.Date;
 

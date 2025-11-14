@@ -1,9 +1,7 @@
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
+package org.example.ttps;
+
 import org.example.ttps.models.Avistamiento;
-import org.example.ttps.models.Desaparicion;
 import org.example.ttps.persistence.AvistamientoDAOHibernateJPA;
-import org.example.ttps.persistence.EMF;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

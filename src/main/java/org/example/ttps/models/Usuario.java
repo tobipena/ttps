@@ -1,5 +1,6 @@
 package org.example.ttps.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.ttps.models.enums.Rol;
 
 import jakarta.persistence.*;
@@ -13,6 +14,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="USUARIO_ID")
+    @JsonProperty(access=JsonProperty.Access.READ_ONLY)
     private Long id;
     private String nombre;
     private String email;

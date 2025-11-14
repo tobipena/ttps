@@ -1,5 +1,6 @@
 package org.example.ttps.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.example.ttps.models.enums.Estado;
 
@@ -9,6 +10,7 @@ import org.example.ttps.models.enums.Estado;
 public class Mascota {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty(access=JsonProperty.Access.READ_ONLY)
     private Long id;
     private String nombre;
     private String tamano;

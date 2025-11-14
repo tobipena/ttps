@@ -1,10 +1,11 @@
+package org.example.ttps;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.ttps.models.Mascota;
-import org.example.ttps.persistence.EMF;
 import org.example.ttps.persistence.MascotaDAOHibernateJPA;
 import org.junit.jupiter.api.*;
-import jakarta.persistence.*;
+
 import java.util.List;
 
 public class MascotaDAOTest {

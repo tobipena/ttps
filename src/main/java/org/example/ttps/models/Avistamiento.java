@@ -1,5 +1,6 @@
 package org.example.ttps.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -9,6 +10,7 @@ import java.util.Date;
 public class Avistamiento {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @JsonProperty(access=JsonProperty.Access.READ_ONLY)
     private Long id;
     private String comentario;
     private String coordenada;

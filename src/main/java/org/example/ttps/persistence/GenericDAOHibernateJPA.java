@@ -12,6 +12,7 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T>{
     protected Class<T> persistentClass;
     public GenericDAOHibernateJPA(Class<T> clase) {
         this.persistentClass = clase;
+        em = EMF.getEMF().createEntityManager();
     }
     public Class<T> getPersistentClass() {
         return persistentClass;
