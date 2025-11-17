@@ -8,24 +8,30 @@ import java.util.List;
 public class GenericDAOHibernateJPA<T> implements GenericDAO<T>{
     @PersistenceContext
     private EntityManager em;
+    private EntityTransaction tx;
 
     protected Class<T> persistentClass;
     public GenericDAOHibernateJPA(Class<T> clase) {
         this.persistentClass = clase;
         em = EMF.getEMF().createEntityManager();
+        tx = em.getTransaction();
     }
     public Class<T> getPersistentClass() {
         return persistentClass;
     }
     @Override
     public T persist(T entity) {
+        tx.begin();
         em.persist(entity);
+        tx.commit();
         return entity;
     }
 
     @Override
     public T update(T entity) {
+        tx.begin();
         em.merge(entity);
+        tx.commit();
         return entity;
     }
     @Override
@@ -43,7 +49,11 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T>{
     @Override
     public void delete(Long id) {
         T entity = this.get(id);
-        if (entity != null) em.remove(entity);
+        if (entity != null) {
+            tx.begin();
+            em.remove(entity);
+            tx.commit();
+        }
     }
 
     public T get(Long id){
