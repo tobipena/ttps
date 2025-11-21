@@ -112,4 +112,6 @@ public class Usuario {
     public void setAvistamientos(List<Avistamiento> avistamientos) {this.avistamientos = avistamientos;}
 
     public void setDesapariciones(List<Desaparicion> desapariciones) {this.desapariciones = desapariciones;}
+
+    public String getPassword() {return password;}
 }

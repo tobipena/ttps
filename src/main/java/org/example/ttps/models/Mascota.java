@@ -38,4 +38,31 @@ public class Mascota {
         this.nombre = nombre;
     }
 
+    public void setTamano(String tamano) {
+        this.tamano = tamano;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setFoto(byte[] foto) {
+        this.foto = foto;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    public void setAnimal(String animal) {
+        this.animal = animal;
+    }
+
+    public void setPublicador(Usuario publicador) {
+        this.publicador = publicador;
+    }
 }

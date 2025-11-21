@@ -39,4 +39,20 @@ public class Avistamiento {
 
     public Usuario getUsuario() {return usuario;}
     public void setUsuario(Usuario usuario) {this.usuario = usuario;}
+
+    public Desaparicion getDesaparicion() {
+        return desaparicion;
+    }
+
+    public void setDesaparicion(Desaparicion desaparicion) {
+        this.desaparicion = desaparicion;
+    }
+
+    public byte[] getFoto() {
+        return foto;
+    }
+
+    public void setFoto(byte[] foto) {
+        this.foto = foto;
+    }
 }

@@ -3,10 +3,7 @@ package org.example.ttps.controller;
 import org.example.ttps.models.Usuario;
 import org.example.ttps.models.dto.UsuarioDTO;
 import org.example.ttps.repositories.UsuarioRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -18,7 +15,7 @@ public class UsuarioController {
         this.usuarioRepository = usuarioRepository;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public Usuario altaUsuario(@RequestBody UsuarioDTO usuario){
         Usuario u = new Usuario();
         u.setNombre(usuario.getNombre());
@@ -27,6 +24,21 @@ public class UsuarioController {
         u.setTelefono(usuario.getTelefono());
         u.setBarrio(usuario.getBarrio());
         u.setCiudad(usuario.getCiudad());
+        return usuarioRepository.save(u);
+    }
+    private boolean noVacio(String s) {
+        return s != null && !s.isEmpty();
+    }
+    @PutMapping("edit/{id}")
+    public Usuario editarUsuario(@RequestBody UsuarioDTO datos, @PathVariable Long id){
+        Usuario u = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (noVacio(datos.getNombre())) {u.setNombre(datos.getNombre());}
+        if (noVacio(datos.getEmail())) {u.setEmail(datos.getEmail());}
+        if (noVacio(datos.getPassword())) {u.setPassword(datos.getPassword());}
+        if (datos.getTelefono() != null) {u.setTelefono(datos.getTelefono());}
+        if (noVacio(datos.getBarrio())) {u.setBarrio(datos.getBarrio());}
+        if (noVacio(datos.getCiudad())) {u.setCiudad(datos.getCiudad());}
+
         return usuarioRepository.save(u);
     }
 
