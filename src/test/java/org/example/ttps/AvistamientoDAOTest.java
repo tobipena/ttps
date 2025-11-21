@@ -22,7 +22,7 @@ public class AvistamientoDAOTest {
 
     @AfterEach
     public void tearDown() {
-
+        avistamientoDAO.deleteAll();
     }
 
     @Test

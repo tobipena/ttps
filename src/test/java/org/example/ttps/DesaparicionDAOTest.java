@@ -20,7 +20,7 @@ public class DesaparicionDAOTest {
     }
     @AfterEach
     public void tearDown() {
-
+        desaparicionDAO.deleteAll();
     }
 
     @Test

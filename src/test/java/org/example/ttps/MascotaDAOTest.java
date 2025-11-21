@@ -18,6 +18,7 @@ public class MascotaDAOTest {
     }
     @AfterEach
     public void tearDown() {
+        mascotaDAO.deleteAll();
     }
 
     @Test

@@ -27,6 +27,9 @@ public class UsuarioDAOTest {
     }
     @AfterEach
     public void tearDown() {
+        avistamientoDAO.deleteAll();
+        desaparicionDAO.deleteAll();
+        usuarioDAO.deleteAll();
     }
 
     @Test
