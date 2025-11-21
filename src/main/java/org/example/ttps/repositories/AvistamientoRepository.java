@@ -12,6 +12,4 @@ import java.util.Optional;
 
 @Repository
 public interface AvistamientoRepository extends JpaRepository<Avistamiento, Long> {
-    List<Avistamiento> findByMascotaId(Long mascotaId);
-
 }

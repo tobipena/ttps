@@ -32,14 +32,14 @@ public class MascotaController {
         m.setPublicador(u);
         return mascotaRepository.save(m);
     }
-    @GetMapping("/usuario/{user_id]")
+    @GetMapping("/usuario/{user_id}")
     public List<Mascota> findByUsuarioId(@PathVariable Long user_id) {
-        return mascotaRepository.findByUsuarioId(user_id);
+        return mascotaRepository.findByPublicadorId(user_id);
     }
     private boolean noVacio(String s) {
         return s != null && !s.isEmpty();
     }
-    @PutMapping("/{id_mascota}")
+    @PutMapping("/{pet_id}")
     public Mascota editar(@PathVariable Long id_mascota, @RequestBody MascotaDTO mascotaDTO) {
         Mascota m = mascotaRepository.findById(id_mascota).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         if (noVacio(mascotaDTO.getNombre())) {m.setNombre(mascotaDTO.getNombre());}
@@ -50,7 +50,7 @@ public class MascotaController {
 
         return mascotaRepository.save(m);
     }
-    @DeleteMapping("/{id_mascota}")
+    @DeleteMapping("/{pet_id}")
     public void borrar(@PathVariable Long id_mascota) {
         mascotaRepository.deleteById(id_mascota);
     }

@@ -29,9 +29,9 @@ public class UsuarioController {
     private boolean noVacio(String s) {
         return s != null && !s.isEmpty();
     }
-    @PutMapping("edit/{id}")
-    public Usuario editarUsuario(@RequestBody UsuarioDTO datos, @PathVariable Long id){
-        Usuario u = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    @PutMapping("edit/{user_id}")
+    public Usuario editarUsuario(@RequestBody UsuarioDTO datos, @PathVariable Long user_id){
+        Usuario u = usuarioRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         if (noVacio(datos.getNombre())) {u.setNombre(datos.getNombre());}
         if (noVacio(datos.getEmail())) {u.setEmail(datos.getEmail());}
         if (noVacio(datos.getPassword())) {u.setPassword(datos.getPassword());}

@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface MascotaRepository extends JpaRepository<Mascota,Long> {
-    List<Mascota> findByUsuarioId(Long usuarioId);
+    List<Mascota> findByPublicadorId(Long publicadorId);
     List<Mascota> findByEstado(Estado estado);
 }
