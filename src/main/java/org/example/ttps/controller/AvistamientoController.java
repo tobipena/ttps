@@ -16,34 +16,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/avisamientos")
 public class AvistamientoController {
-    private final AvistamientoRepository repo;
-    private final UsuarioRepository usuarioRepo;
-    private final DesaparicionRepository desRepo;
-    public AvistamientoController(AvistamientoRepository repo,
-                                  UsuarioRepository usuarioRepo,
-                                  DesaparicionRepository desRepo) {
-        this.repo = repo;
-        this.usuarioRepo = usuarioRepo;
-        this.desRepo = desRepo;
+    private final AvistamientoRepository avistamientoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final DesaparicionRepository desaparicionRepository;
+    public AvistamientoController(AvistamientoRepository avistamientoRepository,
+                                  UsuarioRepository usuarioRepository,
+                                  DesaparicionRepository desaparicionRepository) {
+        this.avistamientoRepository = avistamientoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.desaparicionRepository = desaparicionRepository;
     }
     @PostMapping("/create")
     public Avistamiento crearAvistamiento(@RequestBody AvistamientoDTO dto) {
-        Usuario u = usuarioRepo.findById(dto.getUsuarioId())
+        Usuario u = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Desaparicion d = desRepo.findById(dto.getDesaparicionId())
+        Desaparicion d = desaparicionRepository.findById(dto.getDesaparicionId())
                 .orElseThrow(() -> new RuntimeException("Desaparición no encontrada"));
         Avistamiento a = new Avistamiento();
         a.setComentario(dto.getComentario());
         a.setCoordenada(dto.getCoordenada());
-        a.setFoto(dto.getFoto());
+//        a.setFoto(dto.getFoto());
         a.setFecha(dto.getFecha());
         a.setUsuario(u);
         a.setDesaparicion(d);
-        return repo.save(a);
+
+        u.agregarAvistamiento(a);
+        d.agregarAvistamiento(a);
+        return avistamientoRepository.save(a);
     }
     @GetMapping()
     public List<Avistamiento> findAll() {
-        return repo.findAll();
+        return avistamientoRepository.findAll();
     }
 }

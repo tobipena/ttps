@@ -1,5 +1,6 @@
 package org.example.ttps.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
@@ -18,9 +19,11 @@ public class Avistamiento {
     private java.util.Date fecha;
 
     @ManyToOne
+    @JsonBackReference("usuario-avistamientos")
     private Usuario usuario;
 
     @ManyToOne
+    @JsonBackReference("desaparicion-avistamientos")
     private Desaparicion desaparicion;
 
 

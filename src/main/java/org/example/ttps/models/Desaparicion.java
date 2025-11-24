@@ -1,5 +1,7 @@
 package org.example.ttps.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.util.Date;
@@ -18,13 +20,16 @@ public class Desaparicion {
     private Date fecha;
 
     @ManyToOne
+    @JsonBackReference("usuario-desapariciones")
     private Usuario usuario;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mascota_id")
+    @JsonManagedReference("desaparicion-mascota")
     private Mascota mascota;
 
-    @OneToMany
+    @OneToMany(mappedBy = "desaparicion", cascade = CascadeType.ALL)
+    @JsonManagedReference("desaparicion-avistamientos")
     private List<Avistamiento> avistamientos;
 
     public String getComentario() {
@@ -70,4 +75,8 @@ public class Desaparicion {
     public void setMascota(Mascota mascota) {this.mascota = mascota;}
 
     public Mascota getMascota() {return mascota;}
+
+    public void agregarAvistamiento(Avistamiento a) {
+        this.avistamientos.add(a);
+    }
 }

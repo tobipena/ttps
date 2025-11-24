@@ -1,5 +1,6 @@
 package org.example.ttps.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.ttps.models.enums.Rol;
 
@@ -26,13 +27,16 @@ public class Usuario {
     private Rol rol;
     private String estado;
 
-    @OneToMany
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonManagedReference("usuario-desapariciones")
     private List<Desaparicion> desapariciones;
 
-    @OneToMany
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonManagedReference("usuario-avistamientos")
     private List<Avistamiento> avistamientos;
 
-    @OneToMany
+    @OneToMany(mappedBy = "publicador", cascade = CascadeType.ALL)
+    @JsonManagedReference("usuario-mascotas")
     private List<Mascota> mascotas;
 
     public Usuario() {
@@ -114,4 +118,14 @@ public class Usuario {
     public void setDesapariciones(List<Desaparicion> desapariciones) {this.desapariciones = desapariciones;}
 
     public String getPassword() {return password;}
+
+    public void agregarDesaparicion(Desaparicion d) {
+        this.desapariciones.add(d);
+    }
+    public void agregarAvistamiento(Avistamiento a) {
+        this.avistamientos.add(a);
+    }
+    public void agregarMascota(Mascota m) {
+        this.mascotas.add(m);
+    }
 }

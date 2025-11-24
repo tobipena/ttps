@@ -1,5 +1,6 @@
 package org.example.ttps.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.example.ttps.models.enums.Estado;
@@ -21,9 +22,11 @@ public class Mascota {
     private Estado estado;
 
     @ManyToOne
+    @JsonBackReference("usuario-mascotas")
     private Usuario publicador;
 
-    @OneToOne(mappedBy="mascota")
+    @OneToOne(mappedBy="mascota", cascade = CascadeType.ALL)
+    @JsonBackReference("desaparicion-mascota")
     private Desaparicion desaparicion;
 
     public Long getId() {

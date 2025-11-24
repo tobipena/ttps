@@ -11,4 +11,6 @@ import java.util.List;
 public interface MascotaRepository extends JpaRepository<Mascota,Long> {
     List<Mascota> findByPublicadorId(Long publicadorId);
     List<Mascota> findByEstado(Estado estado);
+
+    List<Mascota> findByEstadoOrEstado(Estado estado, Estado estado1);
 }

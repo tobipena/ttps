@@ -19,19 +19,6 @@ public class MascotaController {
         this.mascotaRepository = mascotaRepository;
         this.usuarioRepository = usuarioRepository;
     }
-    @PostMapping("/usuario/{user_id}")
-    public Mascota crear(@PathVariable Long user_id, @RequestBody MascotaDTO mascotaDTO) {
-        Usuario u =  usuarioRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        Mascota m = new Mascota();
-        m.setNombre(mascotaDTO.getNombre());
-        m.setTamano(mascotaDTO.getTamano());
-        m.setEstado(mascotaDTO.getEstado());
-        m.setDescripcion(mascotaDTO.getDescripcion());
-        m.setColor(mascotaDTO.getColor());
-        m.setPublicador(u);
-        return mascotaRepository.save(m);
-    }
     @GetMapping("/usuario/{user_id}")
     public List<Mascota> findByUsuarioId(@PathVariable Long user_id) {
         return mascotaRepository.findByPublicadorId(user_id);
@@ -56,6 +43,6 @@ public class MascotaController {
     }
     @GetMapping("/perdidas")
     public List<Mascota> findAll() {
-        return mascotaRepository.findByEstado(Estado.PERDIDO_AJENO);
+        return mascotaRepository.findByEstadoOrEstado(Estado.PERDIDO_AJENO, Estado.PERDIDO_PROPIO);
     }
 }
