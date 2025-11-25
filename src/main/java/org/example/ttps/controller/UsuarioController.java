@@ -3,6 +3,7 @@ package org.example.ttps.controller;
 import org.example.ttps.models.Usuario;
 import org.example.ttps.models.dto.UsuarioDTO;
 import org.example.ttps.repositories.UsuarioRepository;
+import org.example.ttps.services.UsuarioService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,35 +11,29 @@ import org.springframework.web.bind.annotation.*;
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository, UsuarioService usuarioService) {
         this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
     @PostMapping("/register")
     public Usuario altaUsuario(@RequestBody UsuarioDTO usuario){
-        Usuario u = new Usuario();
-        u.setNombre(usuario.getNombre());
-        u.setEmail(usuario.getEmail());
-        u.setPassword(usuario.getPassword());
-        u.setTelefono(usuario.getTelefono());
-        u.setBarrio(usuario.getBarrio());
-        u.setCiudad(usuario.getCiudad());
+        if (usuarioRepository.existsUsuarioByEmail(usuario.getEmail())) {
+            throw new IllegalArgumentException("El email ya está registrado");
+        }
+        Usuario u = usuarioService.crearUsuario(usuario);
         return usuarioRepository.save(u);
     }
-    private boolean noVacio(String s) {
-        return s != null && !s.isEmpty();
-    }
-    @PutMapping("edit/{user_id}")
-    public Usuario editarUsuario(@RequestBody UsuarioDTO datos, @PathVariable Long user_id){
-        Usuario u = usuarioRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        if (noVacio(datos.getNombre())) {u.setNombre(datos.getNombre());}
-        if (noVacio(datos.getEmail())) {u.setEmail(datos.getEmail());}
-        if (noVacio(datos.getPassword())) {u.setPassword(datos.getPassword());}
-        if (datos.getTelefono() != null) {u.setTelefono(datos.getTelefono());}
-        if (noVacio(datos.getBarrio())) {u.setBarrio(datos.getBarrio());}
-        if (noVacio(datos.getCiudad())) {u.setCiudad(datos.getCiudad());}
 
+    @PutMapping("edit/{user_id}")
+    public Usuario editarUsuario(@RequestBody UsuarioDTO usuarioDTO, @PathVariable Long user_id){
+        Usuario u = usuarioRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (usuarioRepository.existsUsuarioByEmail(usuarioDTO.getEmail())) {
+            throw new IllegalArgumentException("El email nuevo ya está registrado");
+        }
+        u = usuarioService.actualizarUsuario(u, usuarioDTO);
         return usuarioRepository.save(u);
     }
 

@@ -10,6 +10,7 @@ import org.example.ttps.models.enums.Estado;
 import org.example.ttps.repositories.DesaparicionRepository;
 import org.example.ttps.repositories.MascotaRepository;
 import org.example.ttps.repositories.UsuarioRepository;
+import org.example.ttps.services.DesaparicionService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,10 +24,13 @@ public class DesaparicionController {
     private final UsuarioRepository usuarioRepository;
     private final DesaparicionRepository desaparicionRepository;
     private final MascotaRepository mascotaRepository;
+    private final DesaparicionService desaparicionService;
 
     public DesaparicionController(DesaparicionRepository desaparicionRepository,
                                   MascotaRepository mascotaRepository,
-                                  UsuarioRepository usuarioRepository) {
+                                  UsuarioRepository usuarioRepository,
+                                  DesaparicionService desaparicionService) {
+        this.desaparicionService = desaparicionService;
         this.desaparicionRepository = desaparicionRepository;
         this.mascotaRepository = mascotaRepository;
         this.usuarioRepository = usuarioRepository;
@@ -34,33 +38,16 @@ public class DesaparicionController {
 
     @PostMapping
     public Desaparicion crearDesaparicion(@RequestBody DesaparicionDTO desaparicionDTO){
-        if (desaparicionDTO.getMascotaDTO() == null) {
-            throw new IllegalArgumentException("La información de la mascota es obligatoria");
-        }
-        if (desaparicionDTO.getUsuarioId() == null) {
-            throw new IllegalArgumentException("El ID del usuario es obligatorio");
-        }
         Usuario u = usuarioRepository.findById(desaparicionDTO.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         MascotaDTO mascotaDTO = desaparicionDTO.getMascotaDTO();
-        Mascota m = new Mascota();
-        m.setNombre(mascotaDTO.getNombre());
-        m.setTamano(mascotaDTO.getTamano());
-        m.setEstado(mascotaDTO.getEstado());
-        m.setDescripcion(mascotaDTO.getDescripcion());
-        m.setColor(mascotaDTO.getColor());
-        m.setAnimal(mascotaDTO.getAnimal());
-        m.setPublicador(u);
+        Mascota m = desaparicionService.crearMascota(mascotaDTO, u);
         Mascota mascotaGuardada = mascotaRepository.save(m);
+
         u.agregarMascota(mascotaGuardada);
 
-        Desaparicion d = new Desaparicion();
-        d.setFecha(desaparicionDTO.getFecha());
-        d.setComentario(desaparicionDTO.getComentario());
-        d.setCoordenada(desaparicionDTO.getCoordenada());
-        d.setMascota(mascotaGuardada);
-        d.setUsuario(u);
+        Desaparicion d = desaparicionService.crearDesaparicion(desaparicionDTO, mascotaGuardada, u);
 
         u.agregarDesaparicion(d);
         return desaparicionRepository.save(d);
@@ -71,9 +58,7 @@ public class DesaparicionController {
         Desaparicion desaparicion = desaparicionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Desaparición no encontrada"));
 
-        desaparicion.setFecha(desaparicionEditDTO.getFecha());
-        desaparicion.setComentario(desaparicionEditDTO.getComentario());
-        desaparicion.setCoordenada(desaparicionEditDTO.getCoordenada());
+        desaparicion = desaparicionService.editarDesaparicion(desaparicion, desaparicionEditDTO);
 
         return desaparicionRepository.save(desaparicion);
     }
@@ -84,7 +69,6 @@ public class DesaparicionController {
                 .orElseThrow(() -> new RuntimeException("Desaparición no encontrada"));
         
         Usuario usuario = desaparicion.getUsuario();
-        Mascota mascota = desaparicion.getMascota();
         
         if (usuario != null) {
             usuario.getDesapariciones().remove(desaparicion);

@@ -9,6 +9,7 @@ import org.example.ttps.repositories.AvistamientoRepository;
 import org.example.ttps.repositories.DesaparicionRepository;
 import org.example.ttps.repositories.MascotaRepository;
 import org.example.ttps.repositories.UsuarioRepository;
+import org.example.ttps.services.AvistamientoService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,27 +20,25 @@ public class AvistamientoController {
     private final AvistamientoRepository avistamientoRepository;
     private final UsuarioRepository usuarioRepository;
     private final DesaparicionRepository desaparicionRepository;
+    private final AvistamientoService avistamientoService;
     public AvistamientoController(AvistamientoRepository avistamientoRepository,
                                   UsuarioRepository usuarioRepository,
-                                  DesaparicionRepository desaparicionRepository) {
+                                  DesaparicionRepository desaparicionRepository,
+                                  AvistamientoService avistamientoService) {
+        this.avistamientoService = avistamientoService;
         this.avistamientoRepository = avistamientoRepository;
         this.usuarioRepository = usuarioRepository;
         this.desaparicionRepository = desaparicionRepository;
     }
     @PostMapping("/create")
-    public Avistamiento crearAvistamiento(@RequestBody AvistamientoDTO dto) {
-        Usuario u = usuarioRepository.findById(dto.getUsuarioId())
+    public Avistamiento crearAvistamiento(@RequestBody AvistamientoDTO avistamientoDTO) {
+        Usuario u = usuarioRepository.findById(avistamientoDTO.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Desaparicion d = desaparicionRepository.findById(dto.getDesaparicionId())
+        Desaparicion d = desaparicionRepository.findById(avistamientoDTO.getDesaparicionId())
                 .orElseThrow(() -> new RuntimeException("Desaparición no encontrada"));
-        Avistamiento a = new Avistamiento();
-        a.setComentario(dto.getComentario());
-        a.setCoordenada(dto.getCoordenada());
-//        a.setFoto(dto.getFoto());
-        a.setFecha(dto.getFecha());
-        a.setUsuario(u);
-        a.setDesaparicion(d);
+
+        Avistamiento a = avistamientoService.crearAvistamiento(avistamientoDTO, u, d);
 
         u.agregarAvistamiento(a);
         d.agregarAvistamiento(a);

@@ -18,6 +18,7 @@ public class Usuario {
     @JsonProperty(access=JsonProperty.Access.READ_ONLY)
     private Long id;
     private String nombre;
+    @Column(unique = true,nullable = false)
     private String email;
     private String password;
     private Long telefono;
