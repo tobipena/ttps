@@ -2,9 +2,11 @@ package org.example.ttps.models.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 import java.util.Date;
 
+@Data
 public class DesaparicionEditDTO {
     @NotBlank(message = "El comentario es obligatorio")
     private String comentario;
@@ -12,16 +14,4 @@ public class DesaparicionEditDTO {
     private String coordenada;
     @NotNull(message = "La fecha es obligatoria")
     private Date fecha;
-
-    public String getComentario() {
-        return comentario;
-    }
-
-    public String getCoordenada() {
-        return coordenada;
-    }
-
-    public Date getFecha() {
-        return fecha;
-    }
 }

@@ -3,11 +3,13 @@ package org.example.ttps.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Data;
 import org.example.ttps.models.enums.Estado;
 
 
 @Entity
 @Table(name="MASCOTA")
+@Data
 public class Mascota {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,44 +30,4 @@ public class Mascota {
     @OneToOne(mappedBy="mascota", cascade = CascadeType.ALL)
     @JsonBackReference("desaparicion-mascota")
     private Desaparicion desaparicion;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public void setTamano(String tamano) {
-        this.tamano = tamano;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public void setFoto(byte[] foto) {
-        this.foto = foto;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public void setEstado(Estado estado) {
-        this.estado = estado;
-    }
-
-    public void setAnimal(String animal) {
-        this.animal = animal;
-    }
-
-    public void setPublicador(Usuario publicador) {
-        this.publicador = publicador;
-    }
 }

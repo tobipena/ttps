@@ -1,9 +1,12 @@
 package org.example.ttps.models.dto;
 
-public class LoginDTO {
-    private String email;
-    private String password;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-    public String getEmail() {return email;}
-    public String getPassword() {return password;}
+@Data
+public class LoginDTO {
+    @NotBlank(message = "El email no puede estar vacío")
+    private String email;
+    @NotBlank(message = "La contraseña no puede estar vacía")
+    private String password;
 }

@@ -1,5 +1,6 @@
 package org.example.ttps.controller;
 
+import jakarta.validation.Valid;
 import org.example.ttps.models.Avistamiento;
 import org.example.ttps.models.Desaparicion;
 import org.example.ttps.models.Mascota;
@@ -31,7 +32,7 @@ public class AvistamientoController {
         this.desaparicionRepository = desaparicionRepository;
     }
     @PostMapping("/create")
-    public Avistamiento crearAvistamiento(@RequestBody AvistamientoDTO avistamientoDTO) {
+    public Avistamiento crearAvistamiento(@Valid @RequestBody AvistamientoDTO avistamientoDTO) {
         Usuario u = usuarioRepository.findById(avistamientoDTO.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 

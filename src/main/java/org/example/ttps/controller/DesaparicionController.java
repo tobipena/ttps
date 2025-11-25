@@ -1,5 +1,6 @@
 package org.example.ttps.controller;
 
+import jakarta.validation.Valid;
 import org.example.ttps.models.Desaparicion;
 import org.example.ttps.models.Mascota;
 import org.example.ttps.models.Usuario;
@@ -37,7 +38,7 @@ public class DesaparicionController {
     }
 
     @PostMapping
-    public Desaparicion crearDesaparicion(@RequestBody DesaparicionDTO desaparicionDTO){
+    public Desaparicion crearDesaparicion(@Valid @RequestBody DesaparicionDTO desaparicionDTO){
         Usuario u = usuarioRepository.findById(desaparicionDTO.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 

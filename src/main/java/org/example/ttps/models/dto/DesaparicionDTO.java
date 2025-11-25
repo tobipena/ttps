@@ -3,9 +3,11 @@ package org.example.ttps.models.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 import java.util.Date;
 
+@Data
 public class DesaparicionDTO {
     @NotBlank(message = "El comentario es obligatorio")
     private String comentario;
@@ -21,23 +23,4 @@ public class DesaparicionDTO {
     private MascotaDTO mascotaDTO;
     @NotNull(message = "El ID del usuario es obligatorio")
     private Long usuarioId;
-
-    public String getComentario() {
-        return comentario;
-    }
-    public String getCoordenada() {
-        return coordenada;
-    }
-//    public byte[] getFoto() {
-//        return foto;
-//    }
-    public Date getFecha() {
-        return fecha;
-    }
-    public MascotaDTO getMascotaDTO() {
-        return mascotaDTO;
-    }
-    public Long getUsuarioId() {
-        return usuarioId;
-    }
 }

@@ -1,5 +1,6 @@
 package org.example.ttps.controller;
 
+import jakarta.validation.Valid;
 import org.example.ttps.models.Usuario;
 import org.example.ttps.models.dto.UsuarioDTO;
 import org.example.ttps.repositories.UsuarioRepository;
@@ -19,7 +20,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/register")
-    public Usuario altaUsuario(@RequestBody UsuarioDTO usuario){
+    public Usuario altaUsuario(@Valid @RequestBody UsuarioDTO usuario){
         if (usuarioRepository.existsUsuarioByEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("El email ya está registrado");
         }

@@ -1,5 +1,6 @@
 package org.example.ttps.controller;
 
+import jakarta.validation.Valid;
 import org.example.ttps.models.dto.LoginDTO;
 import org.example.ttps.repositories.UsuarioRepository;
 import org.example.ttps.models.Usuario;
@@ -19,7 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Usuario login(@RequestBody LoginDTO loginDTO) {
+    public Usuario login(@Valid @RequestBody LoginDTO loginDTO) {
         Usuario u = usuarioRepository.findByEmail(loginDTO.getEmail()).orElseThrow(() -> new RuntimeException("Datos incorrectos"));
         if (!u.getPassword().equals(loginDTO.getPassword())){
             throw new RuntimeException("Datos incorrectos");
