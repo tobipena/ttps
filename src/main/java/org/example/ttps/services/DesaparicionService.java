@@ -6,12 +6,43 @@ import org.example.ttps.models.Usuario;
 import org.example.ttps.models.dto.DesaparicionDTO;
 import org.example.ttps.models.dto.DesaparicionEditDTO;
 import org.example.ttps.models.dto.MascotaDTO;
+import org.example.ttps.repositories.DesaparicionRepository;
+import org.example.ttps.repositories.MascotaRepository;
+import org.example.ttps.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class DesaparicionService {
 
-    public Mascota crearMascota(MascotaDTO mascotaDTO, Usuario usuario){
+    private final UsuarioRepository usuarioRepository;
+    private final DesaparicionRepository desaparicionRepository;
+    private final MascotaRepository mascotaRepository;
+
+    public DesaparicionService(UsuarioRepository usuarioRepository,
+                               DesaparicionRepository desaparicionRepository,
+                               MascotaRepository mascotaRepository) {
+        this.usuarioRepository = usuarioRepository;
+        this.desaparicionRepository = desaparicionRepository;
+        this.mascotaRepository = mascotaRepository;
+    }
+
+    public Desaparicion altaDesaparicion(DesaparicionDTO desaparicionDTO) {
+        Usuario u = usuarioRepository.findById(desaparicionDTO.getUsuarioId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        Mascota m = crearMascota(desaparicionDTO.getMascotaDTO(), u);
+        m = mascotaRepository.save(m);
+
+        u.agregarMascota(m);
+        Desaparicion d = crearDesaparicion(desaparicionDTO, m, u);
+
+        u.agregarDesaparicion(d);
+        return desaparicionRepository.save(d);
+    }
+
+    private Mascota crearMascota(MascotaDTO mascotaDTO, Usuario usuario){
         Mascota m = new Mascota();
         m.setNombre(mascotaDTO.getNombre());
         m.setTamano(mascotaDTO.getTamano());
@@ -23,7 +54,7 @@ public class DesaparicionService {
         return m;
     }
 
-    public Desaparicion crearDesaparicion(DesaparicionDTO desaparicionDTO, Mascota mascota, Usuario usuario){
+    private Desaparicion crearDesaparicion(DesaparicionDTO desaparicionDTO, Mascota mascota, Usuario usuario){
         Desaparicion d = new Desaparicion();
         d.setFecha(desaparicionDTO.getFecha());
         d.setComentario(desaparicionDTO.getComentario());
@@ -33,11 +64,37 @@ public class DesaparicionService {
         return d;
     }
 
-    public Desaparicion editarDesaparicion(Desaparicion desaparicion, DesaparicionEditDTO desaparicionEditDTO) {
+    public Desaparicion editarDesaparicion(Long id, DesaparicionEditDTO desaparicionEditDTO) {
+        Desaparicion desaparicion = desaparicionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Desaparición no encontrada"));
+
         desaparicion.setFecha(desaparicionEditDTO.getFecha());
         desaparicion.setComentario(desaparicionEditDTO.getComentario());
         desaparicion.setCoordenada(desaparicionEditDTO.getCoordenada());
+
+        return desaparicionRepository.save(desaparicion);
+    }
+
+    public Desaparicion  eliminarDesaparicion(Long id) {
+        Desaparicion desaparicion = desaparicionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Desaparición no encontrada"));
+
+        Usuario usuario = desaparicion.getUsuario();
+
+        if (usuario != null) {
+            usuario.getDesapariciones().remove(desaparicion);
+        }
+        desaparicionRepository.delete(desaparicion);
         return desaparicion;
+    }
+
+    public List<Desaparicion> listarDesapariciones(){
+        return desaparicionRepository.findAll();
+    }
+
+    public Desaparicion obtenerDesaparicionPorId(Long id) {
+        return desaparicionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Desaparición no encontrada"));
     }
 
 }

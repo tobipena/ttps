@@ -27,6 +27,7 @@ public class Usuario {
     private String barrio;
     private String ciudad;
     private Integer puntos;
+    @Enumerated(EnumType.STRING)
     private Rol rol;
     private Boolean activo;
 

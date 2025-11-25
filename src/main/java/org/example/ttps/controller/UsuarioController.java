@@ -1,41 +1,48 @@
 package org.example.ttps.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.example.ttps.models.Usuario;
 import org.example.ttps.models.dto.UsuarioDTO;
-import org.example.ttps.repositories.UsuarioRepository;
 import org.example.ttps.services.UsuarioService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
-    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository, UsuarioService usuarioService) {
-        this.usuarioRepository = usuarioRepository;
+    public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 
     @PostMapping("/register")
-    public Usuario altaUsuario(@Valid @RequestBody UsuarioDTO usuario){
-        if (usuarioRepository.existsUsuarioByEmail(usuario.getEmail())) {
-            throw new IllegalArgumentException("El email ya está registrado");
+    public ResponseEntity<?> altaUsuario(@Valid @RequestBody UsuarioDTO usuario){
+        try {
+            Usuario u = usuarioService.crearUsuario(usuario);
+            if (u != null) {
+                return ResponseEntity.ok(u);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
-        Usuario u = usuarioService.crearUsuario(usuario);
-        return usuarioRepository.save(u);
     }
 
     @PutMapping("edit/{user_id}")
-    public Usuario editarUsuario(@RequestBody UsuarioDTO usuarioDTO, @PathVariable Long user_id){
-        Usuario u = usuarioRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        if (usuarioRepository.existsUsuarioByEmail(usuarioDTO.getEmail())) {
-            throw new IllegalArgumentException("El email nuevo ya está registrado");
+    public ResponseEntity<?> editarUsuario(@RequestBody UsuarioDTO usuarioDTO, @PathVariable Long user_id){
+        try {
+            Usuario u = usuarioService.actualizarUsuario(user_id, usuarioDTO);
+            return ResponseEntity.ok(u);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        u = usuarioService.actualizarUsuario(u, usuarioDTO);
-        return usuarioRepository.save(u);
     }
 
 }

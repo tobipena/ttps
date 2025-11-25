@@ -2,79 +2,73 @@ package org.example.ttps.controller;
 
 import jakarta.validation.Valid;
 import org.example.ttps.models.Desaparicion;
-import org.example.ttps.models.Mascota;
-import org.example.ttps.models.Usuario;
 import org.example.ttps.models.dto.DesaparicionDTO;
 import org.example.ttps.models.dto.DesaparicionEditDTO;
-import org.example.ttps.models.dto.MascotaDTO;
-import org.example.ttps.models.enums.Estado;
-import org.example.ttps.repositories.DesaparicionRepository;
-import org.example.ttps.repositories.MascotaRepository;
-import org.example.ttps.repositories.UsuarioRepository;
 import org.example.ttps.services.DesaparicionService;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/desapariciones")
 public class DesaparicionController {
 
-    private final UsuarioRepository usuarioRepository;
-    private final DesaparicionRepository desaparicionRepository;
-    private final MascotaRepository mascotaRepository;
     private final DesaparicionService desaparicionService;
 
-    public DesaparicionController(DesaparicionRepository desaparicionRepository,
-                                  MascotaRepository mascotaRepository,
-                                  UsuarioRepository usuarioRepository,
-                                  DesaparicionService desaparicionService) {
+    public DesaparicionController(DesaparicionService desaparicionService) {
         this.desaparicionService = desaparicionService;
-        this.desaparicionRepository = desaparicionRepository;
-        this.mascotaRepository = mascotaRepository;
-        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping
-    public Desaparicion crearDesaparicion(@Valid @RequestBody DesaparicionDTO desaparicionDTO){
-        Usuario u = usuarioRepository.findById(desaparicionDTO.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        MascotaDTO mascotaDTO = desaparicionDTO.getMascotaDTO();
-        Mascota m = desaparicionService.crearMascota(mascotaDTO, u);
-        Mascota mascotaGuardada = mascotaRepository.save(m);
-
-        u.agregarMascota(mascotaGuardada);
-
-        Desaparicion d = desaparicionService.crearDesaparicion(desaparicionDTO, mascotaGuardada, u);
-
-        u.agregarDesaparicion(d);
-        return desaparicionRepository.save(d);
+    public ResponseEntity<?> crearDesaparicion(@Valid @RequestBody DesaparicionDTO desaparicionDTO){
+        try {
+            Desaparicion d = desaparicionService.altaDesaparicion(desaparicionDTO);
+            if (d != null) {
+                return ResponseEntity.ok(d);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public Desaparicion editarDesaparicion(@PathVariable Long id, @RequestBody DesaparicionEditDTO desaparicionEditDTO) {
-        Desaparicion desaparicion = desaparicionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Desaparición no encontrada"));
-
-        desaparicion = desaparicionService.editarDesaparicion(desaparicion, desaparicionEditDTO);
-
-        return desaparicionRepository.save(desaparicion);
+    public ResponseEntity<?> editarDesaparicion(@PathVariable Long id, @RequestBody DesaparicionEditDTO desaparicionEditDTO) {
+        try {
+            Desaparicion desaparicion = desaparicionService.editarDesaparicion(id, desaparicionEditDTO);
+            if (desaparicion != null) {
+                return ResponseEntity.ok(desaparicion);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void eliminarDesaparicion(@PathVariable Long id) {
-        Desaparicion desaparicion = desaparicionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Desaparición no encontrada"));
-        
-        Usuario usuario = desaparicion.getUsuario();
-        
-        if (usuario != null) {
-            usuario.getDesapariciones().remove(desaparicion);
+    public ResponseEntity<?> eliminarDesaparicion(@PathVariable Long id) {
+        try {
+            Desaparicion d = desaparicionService.eliminarDesaparicion(id);
+            return ResponseEntity.ok(d);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        desaparicionRepository.delete(desaparicion);
     }
 
+    @GetMapping
+    public ResponseEntity<?> listarDesapariciones() {
+        return ResponseEntity.ok(desaparicionService.listarDesapariciones());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerDesaparicionPorId(@PathVariable Long id) {
+        try {
+            Desaparicion d = desaparicionService.obtenerDesaparicionPorId(id);
+            return ResponseEntity.ok(d);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }

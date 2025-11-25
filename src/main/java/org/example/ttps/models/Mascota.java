@@ -21,6 +21,7 @@ public class Mascota {
     private byte[] foto;
     private String descripcion;
     private String animal;
+    @Enumerated(EnumType.STRING)
     private Estado estado;
 
     @ManyToOne
