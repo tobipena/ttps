@@ -92,6 +92,34 @@ public class DesaparicionService {
         return desaparicionRepository.findAll();
     }
 
+    public List<org.example.ttps.models.dto.DesaparicionResponseDTO> listarDesaparicionesDTO(){
+        List<Desaparicion> desapariciones = desaparicionRepository.findAll();
+        return desapariciones.stream().map(d -> {
+            org.example.ttps.models.dto.DesaparicionResponseDTO dto = new org.example.ttps.models.dto.DesaparicionResponseDTO();
+            dto.setId(d.getId());
+            dto.setComentario(d.getComentario());
+            dto.setCoordenada(d.getCoordenada());
+            dto.setFoto(d.getFoto());
+            dto.setFecha(d.getFecha());
+            
+            if (d.getMascota() != null) {
+                org.example.ttps.models.dto.DesaparicionResponseDTO.MascotaSimpleDTO mascotaDTO = 
+                    new org.example.ttps.models.dto.DesaparicionResponseDTO.MascotaSimpleDTO();
+                mascotaDTO.setId(d.getMascota().getId());
+                mascotaDTO.setNombre(d.getMascota().getNombre());
+                mascotaDTO.setTamano(d.getMascota().getTamano());
+                mascotaDTO.setColor(d.getMascota().getColor());
+                mascotaDTO.setFoto(d.getMascota().getFoto());
+                mascotaDTO.setDescripcion(d.getMascota().getDescripcion());
+                mascotaDTO.setAnimal(d.getMascota().getAnimal());
+                mascotaDTO.setEstado(d.getMascota().getEstado());
+                dto.setMascota(mascotaDTO);
+            }
+            
+            return dto;
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
     public Desaparicion obtenerDesaparicionPorId(Long id) {
         return desaparicionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Desaparición no encontrada"));

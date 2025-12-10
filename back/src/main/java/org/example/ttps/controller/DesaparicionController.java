@@ -59,7 +59,12 @@ public class DesaparicionController {
 
     @GetMapping
     public ResponseEntity<?> listarDesapariciones() {
-        return ResponseEntity.ok(desaparicionService.listarDesapariciones());
+        try {
+            return ResponseEntity.ok(desaparicionService.listarDesaparicionesDTO());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al listar desapariciones: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")

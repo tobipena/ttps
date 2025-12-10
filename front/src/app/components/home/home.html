@@ -1,0 +1,66 @@
+<div class="home-container">
+  <h2 class="text-center mb-4">Mascotas Perdidas Recientemente</h2>
+  
+  <div class="carousel-container">
+    @if (desapariciones.length > 0) {
+      <button class="carousel-btn prev" (click)="prevSlide()" [disabled]="currentIndex === 0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+
+      <div class="cards-wrapper">
+        @for (desaparicion of getVisibleCards(); track desaparicion.id) {
+          <div class="mascota-card">
+            <div class="card-header">
+              <span class="estado-badge" [ngClass]="desaparicion.mascota.estado.toLowerCase()">
+                {{ desaparicion.mascota.estado }}
+              </span>
+            </div>
+            
+            <div class="card-image">
+              @if (desaparicion.mascota.foto) {
+                <img [src]="'data:image/jpeg;base64,' + desaparicion.mascota.foto" [alt]="desaparicion.mascota.nombre">
+              } @else {
+                <div class="no-image">Sin imagen</div>
+              }
+            </div>
+            
+            <div class="card-body">
+              <h3 class="mascota-nombre">{{ desaparicion.mascota.nombre }}</h3>
+              <p class="mascota-tipo">{{ desaparicion.mascota.animal }}</p>
+              <p class="mascota-descripcion">{{ desaparicion.comentario }}</p>
+              <button class="btn-detalle" (click)="verDetalle(desaparicion.id)">
+                Ver mascota en detalle
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <button class="carousel-btn next" (click)="nextSlide()" [disabled]="currentIndex >= desapariciones.length - cardsPerView">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    }
+    
+    @if (loading) {
+      <div class="loading">Cargando...</div>
+    }
+    
+    @if (!loading && desapariciones.length === 0) {
+      <div class="no-data">No hay mascotas perdidas registradas</div>
+    }
+  </div>
+
+  <div class="carousel-dots">
+    @for (dot of getDots(); track $index) {
+      <span 
+        class="dot" 
+        [class.active]="$index === Math.floor(currentIndex / cardsPerView)"
+        (click)="goToSlide($index)">
+      </span>
+    }
+  </div>
+</div>
