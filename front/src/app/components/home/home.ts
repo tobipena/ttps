@@ -1,6 +1,7 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { PlatformService } from '../../services/platform.service';
 
 interface Mascota {
   id: number;
@@ -38,13 +39,13 @@ export class Home implements OnInit {
   private apiUrl = 'http://localhost:8080/ttps/desapariciones';
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    private readonly platformService: PlatformService
   ) {}
 
   ngOnInit() {
     this.loadDesapariciones();
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.platformService.isBrowser) {
       this.updateCardsPerView();
       window.addEventListener('resize', () => this.updateCardsPerView());
     }
@@ -64,7 +65,7 @@ export class Home implements OnInit {
   }
 
   updateCardsPerView() {
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.platformService.isBrowser) {
       const width = window.innerWidth;
       if (width < 768) {
         this.cardsPerView = 1;
@@ -98,7 +99,7 @@ export class Home implements OnInit {
 
   getDots(): number[] {
     const totalDots = Math.ceil(this.desapariciones.length / this.cardsPerView);
-    return Array(totalDots).fill(0);
+    return new Array(totalDots).fill(0);
   }
 
   verDetalle(id: number) {

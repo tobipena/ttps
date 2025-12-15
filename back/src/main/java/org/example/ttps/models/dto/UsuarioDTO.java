@@ -14,10 +14,8 @@ public class UsuarioDTO {
     private String email;
     @NotBlank(message = "La contraseña no puede estar vacía")
     private String password;
-    @NotNull(message = "El telefono no puede estar vacío")
-    private Long telefono;
-    @NotBlank(message = "El barrio no puede estar vacío")
+    @NotBlank(message = "El telefono no puede estar vacío")
+    private String telefono;
     private String barrio;
-    @NotBlank(message = "La ciudad no puede estar vacío")
     private String ciudad;
 }

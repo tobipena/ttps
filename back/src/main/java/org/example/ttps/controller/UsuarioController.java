@@ -19,20 +19,6 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> altaUsuario(@Valid @RequestBody UsuarioDTO usuario){
-        try {
-            Usuario u = usuarioService.crearUsuario(usuario);
-            if (u != null) {
-                return ResponseEntity.ok(u);
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
-    }
-
     @PutMapping("edit/{user_id}")
     public ResponseEntity<?> editarUsuario(@RequestBody UsuarioDTO usuarioDTO, @PathVariable Long user_id){
         try {

@@ -1,0 +1,100 @@
+import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { PlatformService } from './platform.service';
+
+export interface Usuario {
+  nombre: string;
+  email?: string;
+  telefono?: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  expiresIn: number;
+  nombre: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  nombre: string;
+  telefono: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private apiUrl = 'http://localhost:8080/ttps/auth';
+  private currentUserSignal = signal<Usuario | null>(null);
+  
+  currentUser = this.currentUserSignal.asReadonly();
+
+  constructor(
+    private readonly http: HttpClient,
+    private readonly platformService: PlatformService
+  ) {
+    this.loadUserFromStorage();
+  }
+
+  private loadUserFromStorage(): void {
+    const userStr = this.platformService.getLocalStorage('currentUser');
+    if (userStr) {
+      this.currentUserSignal.set(JSON.parse(userStr));
+    }
+  }
+
+  login(credentials: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => {
+        this.saveAuthData(response);
+      })
+    );
+  }
+
+  register(userData: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData).pipe(
+      tap(response => {
+        this.saveAuthData(response);
+      })
+    );
+  }
+
+  private saveAuthData(response: AuthResponse): void {
+    const user: Usuario = {
+      nombre: response.nombre
+    };
+    
+    this.currentUserSignal.set(user);
+    
+    this.platformService.setLocalStorage('currentUser', JSON.stringify(user));
+    this.platformService.setLocalStorage('authData', JSON.stringify({
+      token: response.token,
+      expiresIn: response.expiresIn
+    }));
+  }
+
+  logout(): void {
+    this.currentUserSignal.set(null);
+    this.platformService.removeLocalStorage('currentUser');
+    this.platformService.removeLocalStorage('authData');
+  }
+
+  isAuthenticated(): boolean {
+    return this.currentUser() !== null;
+  }
+
+  getToken(): string | null {
+    const authData = this.platformService.getLocalStorage('authData');
+    if (authData) {
+      return JSON.parse(authData).token;
+    }
+    return null;
+  }
+}

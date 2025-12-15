@@ -23,7 +23,7 @@ public class Usuario {
     @Column(unique = true,nullable = false)
     private String email;
     private String password;
-    private Long telefono;
+    private String telefono;
     private String barrio;
     private String ciudad;
     private Integer puntos;
