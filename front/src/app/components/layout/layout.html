@@ -4,8 +4,11 @@
       <div class="logo-container" (click)="navigateToHome()" style="cursor: pointer;">
         <img src="assets/logo2.png" alt="Logo" class="logo-img">
       </div>
-      <h1 class="site-title mb-0 position-absolute start-50 translate-middle-x">¿Dónde está mi mascota?</h1>
-      
+      <h1 class="site-title mb-0 position-absolute start-50 translate-middle-x">
+        <span class="title-main">¿Dónde está</span>
+        <span class="title-highlight">mi mascota</span>?
+      </h1>
+
       @if (authService.currentUser()) {
         <div class="ms-auto d-flex align-items-center gap-2">
           <div class="user-dropdown" (click)="toggleDropdown()">
