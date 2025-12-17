@@ -70,6 +70,17 @@
         >
       </div>
 
+      <div class="form-group">
+        <label>Ubicación</label>
+        <p class="help-text">Haz clic en el mapa para seleccionar tu ubicación</p>
+        <div id="map" class="map-container"></div>
+        @if (selectedCoordinates) {
+          <p class="coordinates-text">
+            Coordenadas seleccionadas: {{ selectedCoordinates.lat.toFixed(4) }}, {{ selectedCoordinates.lng.toFixed(4) }}
+          </p>
+        }
+      </div>
+
       @if (errorMessage) {
         <div class="alert alert-error">
           {{ errorMessage }}
@@ -79,7 +90,6 @@
       <button 
         type="submit" 
         class="btn btn-primary btn-block"
-        [disabled]="isLoading || !registerForm.valid"
       >
         @if (isLoading) {
           <span>Registrando...</span>

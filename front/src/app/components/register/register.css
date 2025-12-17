@@ -56,6 +56,28 @@
   color: #aaa;
 }
 
+.map-container {
+  height: 300px;
+  width: 100%;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.25rem 0;
+}
+
+.coordinates-text {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
 .alert {
   padding: 0.75rem;
   border-radius: 8px;

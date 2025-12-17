@@ -24,8 +24,10 @@ public class Usuario {
     private String email;
     private String password;
     private String telefono;
-    private String barrio;
     private String ciudad;
+    private String provincia;
+    private Double latitud;
+    private Double longitud;
     private Integer puntos;
     @Enumerated(EnumType.STRING)
     private Rol rol;

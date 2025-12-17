@@ -16,6 +16,8 @@ public class UsuarioDTO {
     private String password;
     @NotBlank(message = "El telefono no puede estar vacío")
     private String telefono;
-    private String barrio;
     private String ciudad;
+    private String provincia;
+    private Double latitud;
+    private Double longitud;
 }

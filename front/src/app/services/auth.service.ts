@@ -25,6 +25,8 @@ export interface RegisterRequest {
   password: string;
   nombre: string;
   telefono: string;
+  latitud?: number;
+  longitud?: number;
 }
 
 @Injectable({
@@ -84,6 +86,18 @@ export class AuthService {
     this.currentUserSignal.set(null);
     this.platformService.removeLocalStorage('currentUser');
     this.platformService.removeLocalStorage('authData');
+  }
+
+  updateCurrentUser(nombre: string): void {
+    const currentUser = this.currentUserSignal();
+    if (currentUser) {
+      const updatedUser: Usuario = {
+        ...currentUser,
+        nombre: nombre
+      };
+      this.currentUserSignal.set(updatedUser);
+      this.platformService.setLocalStorage('currentUser', JSON.stringify(updatedUser));
+    }
   }
 
   isAuthenticated(): boolean {

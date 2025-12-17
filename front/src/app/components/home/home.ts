@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { PlatformService } from '../../services/platform.service';
 
 interface Mascota {
@@ -37,6 +37,8 @@ export class Home implements OnInit {
   Math = Math;
 
   private apiUrl = 'http://localhost:8080/ttps/desapariciones';
+  private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private readonly http: HttpClient,
@@ -44,22 +46,27 @@ export class Home implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadDesapariciones();
-    if (this.platformService.isBrowser) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadDesapariciones();
       this.updateCardsPerView();
       window.addEventListener('resize', () => this.updateCardsPerView());
     }
   }
 
   loadDesapariciones() {
+    this.loading = true;
+    this.cdr.detectChanges();
+    
     this.http.get<Desaparicion[]>(this.apiUrl).subscribe({
       next: (data) => {
         this.desapariciones = data.slice(0, 10);
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar desapariciones:', error);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
