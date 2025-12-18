@@ -1,0 +1,149 @@
+<div class="container py-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-header text-white">
+      <h3 class="mb-0">Reportar Desaparición de Mascota</h3>
+      <p class="mb-0 mt-2 opacity-75 small">Completa todos los campos para ayudarnos a encontrar a tu mascota</p>
+    </div>
+    <div class="card-body p-4">
+      <form [formGroup]="desaparicionForm" (ngSubmit)="onSubmit()">
+
+        <div class="row g-4">
+          <!-- COLUMNA IZQUIERDA: DATOS DE LA MASCOTA -->
+          <div class="col-lg-6">
+            <div class="form-section">
+              <div class="section-divider mb-4">
+                <h5 class="text-muted">Datos de la Mascota</h5>
+              </div>
+
+              <div class="row g-3">
+                <!-- Nombre -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Nombre *</label>
+                  <input type="text" class="form-control form-control-lg shadow-sm"
+                         formControlName="nombreMascota" placeholder="Ej: Bobby">
+                </div>
+
+                <!-- Animal (Especie) -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Animal *</label>
+                  <select class="form-select form-select-lg shadow-sm" formControlName="animal">
+                    <option value="">Seleccionar...</option>
+                    <option value="Perro">Perro</option>
+                    <option value="Gato">Gato</option>
+                  </select>
+                </div>
+
+                <!-- Tamaño -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Tamaño *</label>
+                  <select class="form-select form-select-lg shadow-sm" formControlName="tamano">
+                    <option value="">Seleccionar...</option>
+                    <option value="Pequeño">Pequeño</option>
+                    <option value="Mediano">Mediano</option>
+                    <option value="Grande">Grande</option>
+                  </select>
+                </div>
+
+                <!-- Color -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Color *</label>
+                  <input type="text" class="form-control form-control-lg shadow-sm"
+                         formControlName="colorMascota" placeholder="Ej: Marrón">
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Descripción *</label>
+                  <textarea class="form-control shadow-sm" formControlName="descripcion"
+                            rows="4" placeholder="Características físicas, comportamiento, etc."></textarea>
+                </div>
+
+                <!-- Foto de la Mascota -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Fotos de la mascota *</label>
+                  <input type="file" class="form-control shadow-sm" #fileInput (change)="onFileSelected($event)"
+                         accept="image/*" multiple>
+                  <div class="form-text">Puedes seleccionar múltiples archivos a la vez (Ctrl+Click)</div>
+                  @if (selectedFiles.length > 0) {
+                    <div class="mt-3 p-3 bg-light rounded">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-success fw-bold">✓ {{ selectedFiles.length }} imagen(es) seleccionada(s)</small>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearFiles(fileInput)">
+                          Limpiar
+                        </button>
+                      </div>
+                      <ul class="list-unstyled mb-0">
+                        @for (file of selectedFiles; track file.name) {
+                          <li class="d-flex align-items-center justify-content-between py-1 border-bottom">
+                            <div class="d-flex align-items-center">
+                              <span class="badge bg-primary me-2">{{ $index + 1 }}</span>
+                              <small class="text-muted">{{ file.name }}</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0"
+                                    (click)="removeFile($index, fileInput)" title="Eliminar">
+                              ✕
+                            </button>
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COLUMNA DERECHA: DATOS DE LA DESAPARICIÓN -->
+          <div class="col-lg-6">
+            <div class="form-section">
+              <div class="section-divider mb-4">
+                <h5 class="text-muted">Datos de la Desaparición</h5>
+              </div>
+
+              <div class="row g-3">
+                <!-- Fecha -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Fecha de desaparición *</label>
+                  <input type="date" class="form-control form-control-lg shadow-sm" formControlName="fecha">
+                  <div class="form-text">¿Cuándo viste a tu mascota por última vez?</div>
+                </div>
+
+                <!-- Ubicación -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Última ubicación conocida *</label>
+                  <input type="text" class="form-control form-control-lg shadow-sm"
+                         formControlName="coordenada"
+                         placeholder="Ej: -34.9215, -57.9545 o 'Parque Central'">
+                  <div class="form-text">Dirección o coordenadas donde se perdió</div>
+                </div>
+
+                <!-- Comentario -->
+                <div class="col-12">
+                  <label class="form-label text-uppercase fw-semibold text-muted small">Descripción de lo ocurrido *</label>
+                  <textarea class="form-control shadow-sm" formControlName="comentario"
+                            rows="8" placeholder="Describe las circunstancias de la desaparición, dónde y cómo se perdió, etc."></textarea>
+                  <div class="form-text">Proporciona todos los detalles que puedan ayudar</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="d-flex gap-3 mt-4 pt-4 border-top">
+          <button type="submit" class="btn btn-primary btn-lg flex-fill shadow"
+                  [disabled]="!desaparicionForm.valid || loading">
+            @if (loading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Reportar Desaparición
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-lg shadow-sm"
+                  routerLink="/perfil">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

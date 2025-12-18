@@ -1,6 +1,6 @@
 <div class="home-container">
   <h2 class="text-center mb-4">Mascotas Perdidas Recientemente</h2>
-  
+
   <div class="carousel-container">
     @if (desapariciones.length > 0) {
       <button class="carousel-btn prev" (click)="prevSlide()" [disabled]="currentIndex === 0">
@@ -17,15 +17,15 @@
                 {{ desaparicion.mascota.estado }}
               </span>
             </div>
-            
+
             <div class="card-image">
-              @if (desaparicion.mascota.foto) {
-                <img [src]="'data:image/jpeg;base64,' + desaparicion.mascota.foto" [alt]="desaparicion.mascota.nombre">
+              @if (getPrimeraImagen(desaparicion.mascota)) {
+                <img [src]="'data:image/jpeg;base64,' + getPrimeraImagen(desaparicion.mascota)" [alt]="desaparicion.mascota.nombre">
               } @else {
                 <div class="no-image">Sin imagen</div>
               }
             </div>
-            
+
             <div class="card-body">
               <h3 class="mascota-nombre">{{ desaparicion.mascota.nombre }}</h3>
               <p class="mascota-tipo">{{ desaparicion.mascota.animal }}</p>
@@ -44,11 +44,11 @@
         </svg>
       </button>
     }
-    
+
     @if (loading) {
       <div class="loading">Cargando...</div>
     }
-    
+
     @if (!loading && desapariciones.length === 0) {
       <div class="no-data">No hay mascotas perdidas registradas</div>
     }
@@ -56,8 +56,8 @@
 
   <div class="carousel-dots">
     @for (dot of getDots(); track $index) {
-      <span 
-        class="dot" 
+      <span
+        class="dot"
         [class.active]="$index === Math.floor(currentIndex / cardsPerView)"
         (click)="goToSlide($index)">
       </span>

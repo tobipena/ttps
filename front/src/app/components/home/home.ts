@@ -3,15 +3,22 @@ import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { PlatformService } from '../../services/platform.service';
 
+interface Imagen {
+  id: number;
+  datos: string; // Base64
+  tipo: string;
+}
+
 interface Mascota {
   id: number;
   nombre: string;
   tamano: string;
   color: string;
-  foto: string;
+  foto?: string; // Deprecated pero mantener compatibilidad
   descripcion: string;
   animal: string;
   estado: string;
+  imagenes?: Imagen[]; // Nueva propiedad
 }
 
 interface Desaparicion {
@@ -56,7 +63,7 @@ export class Home implements OnInit {
   loadDesapariciones() {
     this.loading = true;
     this.cdr.detectChanges();
-    
+
     this.http.get<Desaparicion[]>(this.apiUrl).subscribe({
       next: (data) => {
         this.desapariciones = data.slice(0, 10);
@@ -110,7 +117,18 @@ export class Home implements OnInit {
   }
 
   verDetalle(id: number) {
-    console.log('Ver detalle de desaparición:', id);
     // Aquí puedes implementar la navegación al detalle
+  }
+
+  getPrimeraImagen(mascota: Mascota): string | null {
+    // Primero intentar con las nuevas imágenes
+    if (mascota.imagenes && mascota.imagenes.length > 0) {
+      return mascota.imagenes[0].datos;
+    }
+    // Fallback al campo foto deprecated
+    if (mascota.foto) {
+      return mascota.foto;
+    }
+    return null;
   }
 }

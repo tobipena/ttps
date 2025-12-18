@@ -52,4 +52,7 @@ export class Layout {
     this.authService.logout();
     this.router.navigate(['/']);
   }
+  navigateToDesaparicion(): void {
+    this.router.navigate(['/desaparicion']);
+  }
 }
