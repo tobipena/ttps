@@ -16,6 +16,21 @@ interface UserProfile {
   password?: string;
 }
 
+interface Mascota {
+  id: number;
+  nombre: string;
+  animal: string;
+  color: string;
+  descripcion: string;
+  tamano: string;
+  estado: string;
+  imagenes?: Array<{
+    id: number;
+    datos: string;
+    tipo: string;
+  }>;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -25,14 +40,17 @@ interface UserProfile {
 })
 export class Profile implements OnInit {
   userProfile: UserProfile | null = null;
+  mascotas: Mascota[] = [];
   editingField: string | null = null;
   tempValue: string = '';
   isLoading = true;
+  isLoadingMascotas = false;
   errorMessage = '';
   successMessage = '';
   showPassword = false;
 
   private apiUrl = 'http://localhost:8080/ttps/usuarios';
+  private mascotasUrl = 'http://localhost:8080/ttps/mascotas';
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
 
@@ -53,15 +71,16 @@ export class Profile implements OnInit {
 
   loadUserProfile(): void {
     this.isLoading = true;
-    
+
     this.http.get<UserProfile>(`${this.apiUrl}/me`).subscribe({
       next: (profile) => {
         this.userProfile = profile;
         this.isLoading = false;
-        // Forzar múltiples ciclos de detección
         this.cdr.markForCheck();
         this.cdr.detectChanges();
         setTimeout(() => this.cdr.detectChanges(), 0);
+
+        this.loadMascotas(profile.id);
       },
       error: (error) => {
         this.isLoading = false;
@@ -73,9 +92,34 @@ export class Profile implements OnInit {
     });
   }
 
+  loadMascotas(usuarioId: number): void {
+    this.isLoadingMascotas = true;
+
+    this.http.get<Mascota[]>(`${this.mascotasUrl}/usuario/${usuarioId}`).subscribe({
+      next: (mascotas) => {
+        this.mascotas = mascotas;
+        this.isLoadingMascotas = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al cargar mascotas:', error);
+        this.isLoadingMascotas = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getPrimeraImagen(mascota: Mascota): string | null {
+    if (mascota.imagenes && mascota.imagenes.length > 0) {
+      return mascota.imagenes[0].datos;
+    }
+    return null;
+  }
+
+
   startEdit(field: string): void {
     if (field === 'puntos') return; // Los puntos no se pueden editar
-    
+
     this.editingField = field;
     this.tempValue = this.userProfile ? (this.userProfile[field as keyof UserProfile] as string) : '';
     this.errorMessage = '';
@@ -131,12 +175,12 @@ export class Profile implements OnInit {
         this.tempValue = '';
         this.showPassword = false;
         this.errorMessage = '';
-        
+
         // Si se actualizó el nombre, actualizar también en el AuthService para que se refleje en el layout
         if (field === 'nombre') {
           this.authService.updateCurrentUser(updatedProfile.nombre);
         }
-        
+
         // Limpiar mensaje de éxito después de 3 segundos
         setTimeout(() => {
           this.successMessage = '';
@@ -151,11 +195,11 @@ export class Profile implements OnInit {
         } else {
           this.errorMessage = 'Error al actualizar el campo';
         }
-        
+
         // Forzar detección de cambios para mostrar el error inmediatamente
         this.cdr.markForCheck();
         this.cdr.detectChanges();
-        
+
         // Limpiar mensaje de error después de 5 segundos
         setTimeout(() => {
           this.errorMessage = '';
@@ -181,3 +225,4 @@ export class Profile implements OnInit {
     this.showPassword = !this.showPassword;
   }
 }
+
