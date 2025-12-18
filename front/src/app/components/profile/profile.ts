@@ -55,6 +55,7 @@ export class Profile implements OnInit {
   mascotaEditando: Mascota | null = null;
   desaparicionId: number | null = null;
   fechaDesaparicion: string = '';
+  fechaDesaparicionOriginal: string = ''; // Para comparar si cambió
 
   // Modal de confirmación
   showConfirmModal = false;
@@ -140,8 +141,10 @@ export class Profile implements OnInit {
           // Convertir a formato yyyy-MM-dd para el input date
           const fecha = new Date(desaparicion.fecha);
           this.fechaDesaparicion = fecha.toISOString().split('T')[0];
+          this.fechaDesaparicionOriginal = this.fechaDesaparicion; // Guardar original
         } else {
           this.fechaDesaparicion = '';
+          this.fechaDesaparicionOriginal = '';
         }
 
         this.mascotaEditando = { ...mascota };
@@ -153,6 +156,7 @@ export class Profile implements OnInit {
         // Abrir modal sin ID de desaparición
         this.mascotaEditando = { ...mascota };
         this.fechaDesaparicion = '';
+        this.fechaDesaparicionOriginal = '';
         this.showEditModal = true;
         this.cdr.detectChanges();
       }
@@ -182,6 +186,12 @@ export class Profile implements OnInit {
       return;
     }
 
+    // Verificar si la fecha cambió
+    const fechaCambio = this.desaparicionId &&
+                        this.fechaDesaparicion &&
+                        this.fechaDesaparicion !== this.fechaDesaparicionOriginal;
+
+
     // Actualizar mascota
     this.http.put(`${this.mascotasUrl}/${this.mascotaEditando.id}`, this.mascotaEditando).subscribe({
       next: (mascotaActualizada: any) => {
@@ -192,7 +202,7 @@ export class Profile implements OnInit {
         }
 
         // Si hay desaparición y se cambió la fecha, actualizarla
-        if (this.desaparicionId && this.fechaDesaparicion) {
+        if (fechaCambio) {
           const fechaISO = new Date(this.fechaDesaparicion).toISOString();
           this.http.get<any>(`${this.desaparicionesUrl}/${this.desaparicionId}`).subscribe({
             next: (desaparicion) => {
@@ -223,6 +233,7 @@ export class Profile implements OnInit {
             }
           });
         } else {
+          // Solo se actualizó la mascota, no la fecha
           this.successMessage = 'Mascota actualizada exitosamente';
           this.cdr.detectChanges();
 
