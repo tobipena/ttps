@@ -32,6 +32,7 @@ public class MascotaService {
         Mascota mascota = mascotaRepository.findById(pet_id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         if (noVacio(mascotaDTO.getNombre())) {mascota.setNombre(mascotaDTO.getNombre());}
         if (noVacio(mascotaDTO.getTamano())) {mascota.setTamano(mascotaDTO.getTamano());}
+        if (noVacio(mascotaDTO.getAnimal())) {mascota.setAnimal(mascotaDTO.getAnimal());}
         if (mascotaDTO.getEstado() != null) {mascota.setEstado(mascotaDTO.getEstado());}
         if (noVacio(mascotaDTO.getDescripcion())) {mascota.setDescripcion(mascotaDTO.getDescripcion());}
         if (noVacio(mascotaDTO.getColor())) {mascota.setColor(mascotaDTO.getColor());}

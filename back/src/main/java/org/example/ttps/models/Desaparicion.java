@@ -29,7 +29,7 @@ public class Desaparicion {
     @JsonBackReference("usuario-desapariciones")
     private Usuario usuario;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "mascota_id")
     @JsonManagedReference("desaparicion-mascota")
     private Mascota mascota;

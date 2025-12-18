@@ -28,6 +28,7 @@ interface Mascota {
   descripcion: string;
   tamano: string;
   estado: string;
+  desaparicionId?: number; // ID de la desaparición asociada
   imagenes?: Array<{
     id: number;
     datos: string;
@@ -63,8 +64,19 @@ export class Profile implements OnInit {
   private map: any;
   private marker: any;
 
+  // Modal de edición
+  showEditModal = false;
+  mascotaEditando: Mascota | null = null;
+  desaparicionId: number | null = null;
+  fechaDesaparicion: string = '';
+  fechaDesaparicionOriginal: string = ''; // Para comparar si cambió
+
+  // Modal de confirmación
+  showConfirmModal = false;
+
   private apiUrl = 'http://localhost:8080/ttps/usuarios';
   private mascotasUrl = 'http://localhost:8080/ttps/mascotas';
+  private desaparicionesUrl = 'http://localhost:8080/ttps/desapariciones';
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
 
@@ -131,9 +143,171 @@ export class Profile implements OnInit {
   }
 
 
-  startEdit(field: string): void {
-    if (field === 'puntos') return; // Los puntos no se pueden editar
+  editarMascota(mascota: Mascota): void {
+    // Buscar la desaparición asociada a esta mascota
+    this.http.get<any[]>(this.desaparicionesUrl).subscribe({
+      next: (desapariciones) => {
+        const desaparicion = desapariciones.find(d => d.mascota?.id === mascota.id);
+        this.desaparicionId = desaparicion?.id || null;
 
+        // Guardar la fecha de desaparición si existe
+        if (desaparicion?.fecha) {
+          // Convertir a formato yyyy-MM-dd para el input date
+          const fecha = new Date(desaparicion.fecha);
+          this.fechaDesaparicion = fecha.toISOString().split('T')[0];
+          this.fechaDesaparicionOriginal = this.fechaDesaparicion; // Guardar original
+        } else {
+          this.fechaDesaparicion = '';
+          this.fechaDesaparicionOriginal = '';
+        }
+
+        this.mascotaEditando = { ...mascota };
+        this.showEditModal = true;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al cargar desapariciones:', error);
+        // Abrir modal sin ID de desaparición
+        this.mascotaEditando = { ...mascota };
+        this.fechaDesaparicion = '';
+        this.fechaDesaparicionOriginal = '';
+        this.showEditModal = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarModal(): void {
+    this.showEditModal = false;
+    this.mascotaEditando = null;
+    this.desaparicionId = null;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.cdr.detectChanges();
+  }
+
+  guardarCambios(): void {
+    if (!this.mascotaEditando) return;
+
+    // Validaciones básicas
+    if (!this.mascotaEditando.nombre.trim()) {
+      this.errorMessage = 'El nombre es obligatorio';
+      return;
+    }
+
+    if (!this.mascotaEditando.animal.trim()) {
+      this.errorMessage = 'El tipo de animal es obligatorio';
+      return;
+    }
+
+    // Verificar si la fecha cambió
+    const fechaCambio = this.desaparicionId &&
+                        this.fechaDesaparicion &&
+                        this.fechaDesaparicion !== this.fechaDesaparicionOriginal;
+
+
+    // Actualizar mascota
+    this.http.put(`${this.mascotasUrl}/${this.mascotaEditando.id}`, this.mascotaEditando).subscribe({
+      next: (mascotaActualizada: any) => {
+        // Actualizar en el array local
+        const index = this.mascotas.findIndex(m => m.id === this.mascotaEditando!.id);
+        if (index !== -1) {
+          this.mascotas[index] = mascotaActualizada;
+        }
+
+        // Si hay desaparición y se cambió la fecha, actualizarla
+        if (fechaCambio) {
+          const fechaISO = new Date(this.fechaDesaparicion).toISOString();
+          this.http.get<any>(`${this.desaparicionesUrl}/${this.desaparicionId}`).subscribe({
+            next: (desaparicion) => {
+              const desaparicionActualizada = {
+                ...desaparicion,
+                fecha: fechaISO
+              };
+
+              this.http.put(`${this.desaparicionesUrl}/${this.desaparicionId}`, desaparicionActualizada).subscribe({
+                next: () => {
+                  this.successMessage = 'Mascota y fecha de desaparición actualizadas exitosamente';
+                  this.cdr.detectChanges();
+
+                  setTimeout(() => {
+                    this.cerrarModal();
+                  }, 1500);
+                },
+                error: (error) => {
+                  console.error('Error al actualizar fecha:', error);
+                  this.successMessage = 'Mascota actualizada (fecha no se pudo actualizar)';
+                  this.cdr.detectChanges();
+
+                  setTimeout(() => {
+                    this.cerrarModal();
+                  }, 1500);
+                }
+              });
+            }
+          });
+        } else {
+          // Solo se actualizó la mascota, no la fecha
+          this.successMessage = 'Mascota actualizada exitosamente';
+          this.cdr.detectChanges();
+
+          setTimeout(() => {
+            this.cerrarModal();
+          }, 1500);
+        }
+      },
+      error: (error) => {
+        console.error('Error al actualizar mascota:', error);
+        this.errorMessage = 'Error al actualizar la mascota. Por favor, intenta nuevamente.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  abrirConfirmacionEliminar(): void {
+    if (!this.desaparicionId) {
+      this.errorMessage = 'No se encontró la publicación asociada';
+      return;
+    }
+    this.showConfirmModal = true;
+  }
+
+  cerrarConfirmacion(): void {
+    this.showConfirmModal = false;
+  }
+
+  eliminarPublicacion(): void {
+    if (!this.desaparicionId) {
+      this.errorMessage = 'No se encontró la publicación asociada';
+      return;
+    }
+
+    this.http.delete(`${this.desaparicionesUrl}/${this.desaparicionId}`).subscribe({
+      next: () => {
+        // Remover la mascota del array local (porque estaba asociada a la desaparición)
+        if (this.mascotaEditando) {
+          this.mascotas = this.mascotas.filter(m => m.id !== this.mascotaEditando!.id);
+        }
+
+        this.successMessage = 'Publicación eliminada exitosamente';
+        this.showConfirmModal = false;
+        this.cdr.detectChanges();
+
+        // Cerrar modal después de 1 segundo
+        setTimeout(() => {
+          this.cerrarModal();
+        }, 1000);
+      },
+      error: (error) => {
+        console.error('Error al eliminar publicación:', error);
+        this.errorMessage = 'Error al eliminar la publicación. Por favor, intenta nuevamente.';
+        this.showConfirmModal = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  startEdit(field: string): void {
     this.editingField = field;
     this.tempValue = this.userProfile ? (this.userProfile[field as keyof UserProfile] as string) : '';
     this.errorMessage = '';

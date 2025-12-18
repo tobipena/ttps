@@ -108,7 +108,7 @@
 
                   <!-- Ubicación -->
                   <div class="col-md-6">
-                    <label class="form-label text-uppercase fw-semibold text-muted small mb-2">
+                    <label class="form-label text-uppercase fw-semibold mb-2">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                         <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
                         <circle cx="12" cy="10" r="3"/>
@@ -165,10 +165,8 @@
                               <span class="badge"
                                     [ngClass]="{
                                       'badge-perdido': mascota.estado === 'PERDIDO_PROPIO' || mascota.estado === 'PERDIDO_AJENO',
-                                      'badge-recuperado': mascota.estado === 'RECUPERADO',
-                                      'badge-adoptado': mascota.estado === 'ADOPTADO'
                                     }">
-                                {{ mascota.estado }}
+                                {{ mascota.estado.replaceAll('_', ' ') }}
                               </span>
                             </div>
 
@@ -190,6 +188,17 @@
                                 <strong>Descripción:</strong> {{ mascota.descripcion }}
                               </small>
                             </div>
+
+                            <!-- Botones de acción -->
+                            <div class="d-flex gap-2 mt-3">
+                              <button class="btn btn-outline-secondary btn-sm flex-fill" (click)="editarMascota(mascota)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                Editar
+                              </button>
+                            </div>
                           </div>
                         </div>
                       }
@@ -204,6 +213,127 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Edición -->
+@if (showEditModal && mascotaEditando) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Editar Publicacion</h3>
+        <button class="btn-close" (click)="cerrarModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        @if (errorMessage) {
+          <div class="alert alert-danger">{{ errorMessage }}</div>
+        }
+        @if (successMessage) {
+          <div class="alert alert-success">{{ successMessage }}</div>
+        }
+
+        <form>
+          <div class="row g-3">
+            <!-- Nombre -->
+            <div class="col-md-6">
+              <label class="form-label text-uppercase fw-semibold mb-2">Nombre</label>
+              <input type="text" class="form-control" [(ngModel)]="mascotaEditando.nombre" name="nombre">
+            </div>
+
+            <!-- Animal -->
+            <div class="col-md-6">
+              <label class="form-label text-uppercase fw-semibold mb-2">Tipo de Animal</label>
+              <select class="form-select" [(ngModel)]="mascotaEditando.animal" name="animal">
+                <option value="Gato">Gato</option>
+                <option value="Perro">Perro</option>
+              </select>
+            </div>
+
+            <!-- Color -->
+            <div class="col-md-6">
+              <label class="form-label text-uppercase fw-semibold mb-2">Color</label>
+              <input type="text" class="form-control" [(ngModel)]="mascotaEditando.color" name="color">
+            </div>
+
+            <!-- Tamaño -->
+            <div class="col-md-6">
+              <label class="form-label text-uppercase fw-semibold mb-2">Tamaño</label>
+              <select class="form-select" [(ngModel)]="mascotaEditando.tamano" name="tamano">
+                <option value="Pequeño">Pequeño</option>
+                <option value="Mediano">Mediano</option>
+                <option value="Grande">Grande</option>
+              </select>
+            </div>
+
+            <!-- Descripción -->
+            <div class="col-12">
+              <label class="form-label text-uppercase fw-semibold mb-2">Descripción</label>
+              <textarea class="form-control" rows="3" [(ngModel)]="mascotaEditando.descripcion" name="descripcion"></textarea>
+            </div>
+
+            <!-- Estado -->
+            <div class="col-12">
+              <label class="form-label text-uppercase fw-semibold mb-2">Estado</label>
+              <select class="form-select" [(ngModel)]="mascotaEditando.estado" name="estado">
+                <option value="PERDIDO_PROPIO">Perdido Propio</option>
+                <option value="PERDIDO_AJENO">Perdido Ajeno</option>
+              </select>
+            </div>
+
+            <!-- Fecha de Desaparición -->
+            @if (desaparicionId) {
+              <div class="col-12">
+                <label class="form-label text-uppercase fw-semibold mb-2">Fecha de Desaparición</label>
+                <input type="date" class="form-control" [(ngModel)]="fechaDesaparicion" name="fechaDesaparicion">
+                <small class="text-muted">Fecha en que se reportó la desaparición</small>
+              </div>
+            }
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <div class="d-flex justify-content-between w-100">
+          <button class="btn btn-danger" (click)="abrirConfirmacionEliminar()" [disabled]="!desaparicionId">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Eliminar Publicación
+          </button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" (click)="cerrarModal()">Cancelar</button>
+            <button class="btn btn-primary" (click)="guardarCambios()">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Confirmación para Eliminar -->
+@if (showConfirmModal) {
+  <div class="modal-overlay" (click)="cerrarConfirmacion()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <div class="confirm-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h3>¿Eliminar Publicación?</h3>
+      <p>Esta acción eliminará permanentemente la publicación de desaparición y todos sus datos asociados.</p>
+      <div class="confirm-buttons">
+        <button class="btn btn-outline-secondary" (click)="cerrarConfirmacion()">Cancelar</button>
+        <button class="btn btn-danger" (click)="eliminarPublicacion()">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
 
 <!-- Modal de confirmación de cambio de contraseña -->
 @if (showPasswordModal) {
