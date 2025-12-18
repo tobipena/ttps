@@ -20,7 +20,8 @@ public class Desaparicion {
     @JsonProperty(access=JsonProperty.Access.READ_ONLY)
     private Long id;
     private String comentario;
-    private String coordenada;
+    private Double latitud;
+    private Double longitud;
     private byte[] foto;
     private Date fecha;
 

@@ -78,7 +78,8 @@ public class DesaparicionService {
         Desaparicion d = new Desaparicion();
         d.setFecha(desaparicionDTO.getFecha());
         d.setComentario(desaparicionDTO.getComentario());
-        d.setCoordenada(desaparicionDTO.getCoordenada());
+        d.setLatitud(desaparicionDTO.getLatitud());
+        d.setLongitud(desaparicionDTO.getLongitud());
         d.setMascota(mascota);
         d.setUsuario(usuario);
         return d;
@@ -90,7 +91,8 @@ public class DesaparicionService {
 
         desaparicion.setFecha(desaparicionEditDTO.getFecha());
         desaparicion.setComentario(desaparicionEditDTO.getComentario());
-        desaparicion.setCoordenada(desaparicionEditDTO.getCoordenada());
+        desaparicion.setLatitud(desaparicionEditDTO.getLatitud());
+        desaparicion.setLongitud(desaparicionEditDTO.getLongitud());
 
         return desaparicionRepository.save(desaparicion);
     }
@@ -118,7 +120,8 @@ public class DesaparicionService {
             org.example.ttps.models.dto.DesaparicionResponseDTO dto = new org.example.ttps.models.dto.DesaparicionResponseDTO();
             dto.setId(d.getId());
             dto.setComentario(d.getComentario());
-            dto.setCoordenada(d.getCoordenada());
+            dto.setLatitud(d.getLatitud());
+            dto.setLongitud(d.getLongitud());
             dto.setFoto(d.getFoto());
             dto.setFecha(d.getFecha());
             

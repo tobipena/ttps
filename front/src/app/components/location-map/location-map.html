@@ -1,0 +1,30 @@
+<div class="location-map-container">
+  <p class="help-text">Haz clic en el mapa para seleccionar tu ubicación en Argentina</p>
+  
+  <div id="location-map" class="map-container"></div>
+  
+  @if (isLoadingLocation) {
+    <div class="mt-3 p-3 bg-light rounded text-center">
+      <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <small class="text-muted">Verificando ubicación...</small>
+    </div>
+  } @else if (selectedCoordinates && selectedLocation) {
+    <div class="location-info-success">
+      <div class="d-flex align-items-center mb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success me-2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <strong class="text-success">Ubicación válida</strong>
+      </div>
+      <p class="mb-2">
+        <strong>{{ selectedLocation.ciudad }}</strong>, {{ selectedLocation.provincia }}
+      </p>
+      <small class="text-muted">
+        Coordenadas: {{ selectedCoordinates.lat.toFixed(4) }}, {{ selectedCoordinates.lng.toFixed(4) }}
+      </small>
+    </div>
+  }
+</div>

@@ -5,10 +5,11 @@ import { RouterModule, Router } from '@angular/router';
 import { DesaparicionService } from '../../services/desaparicion';
 import { HttpClient } from '@angular/common/http';
 import { PlatformService } from '../../services/platform.service';
+import { LocationMap, LocationData } from '../location-map/location-map';
 
 @Component({
   selector: 'app-desaparicion',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, LocationMap],
   templateUrl: './desaparicion.html',
   styleUrl: './desaparicion.css',
 })
@@ -20,6 +21,7 @@ export class Desaparicion implements OnInit{
   selectedFiles: File[] = [];
   fotosBase64: string[] = [];
   usuarioId: number | null = null;
+  locationError = '';
 
   private desaparicionApiUrl = 'http://localhost:8080/ttps/desapariciones';
   private usuariosApiUrl = 'http://localhost:8080/ttps/usuarios';
@@ -39,7 +41,8 @@ export class Desaparicion implements OnInit{
       descripcion: ['', Validators.required],
       colorMascota: ['', Validators.required],
       fecha: ['', Validators.required],
-      coordenada: ['', Validators.required],
+      latitud: ['', Validators.required],
+      longitud: ['', Validators.required],
       comentario: ['', Validators.required]
     });
   }
@@ -47,14 +50,6 @@ export class Desaparicion implements OnInit{
   ngOnInit() {
     // Solo ejecutar en el navegador, no en SSR
     if (isPlatformBrowser(this.platformId)) {
-      // Verificar si hay token de autenticación
-      const authData = this.platformService.getLocalStorage('authData');
-
-      if (!authData) {
-        this.router.navigate(['/login']);
-        return;
-      }
-
       // Obtener el ID del usuario autenticado
       this.http.get<any>(`${this.usuariosApiUrl}/me`).subscribe({
         next: (user) => {
@@ -62,12 +57,6 @@ export class Desaparicion implements OnInit{
         },
         error: (error) => {
           console.error('Error al obtener usuario:', error);
-          if (error.status === 401) {
-            // Token inválido o expirado, redirigir al login
-            this.platformService.removeLocalStorage('authData');
-            this.platformService.removeLocalStorage('currentUser');
-            this.router.navigate(['/login']);
-          }
         }
       });
     }
@@ -139,6 +128,14 @@ export class Desaparicion implements OnInit{
         return;
       }
 
+      // Validar que haya una ubicación seleccionada
+      const latitud = this.desaparicionForm.get('latitud')?.value;
+      const longitud = this.desaparicionForm.get('longitud')?.value;
+      if (!latitud || !longitud) {
+        this.locationError = 'Debe seleccionar una ubicación en el mapa';
+        return;
+      }
+
       this.loading = true;
 
       const fechaValue = this.desaparicionForm.get('fecha')?.value;
@@ -157,7 +154,8 @@ export class Desaparicion implements OnInit{
 
       const desaparicionData = {
         comentario: this.desaparicionForm.get('comentario')?.value,
-        coordenada: this.desaparicionForm.get('coordenada')?.value,
+        latitud: parseFloat(latitud),
+        longitud: parseFloat(longitud),
         fecha: fechaISO,
         mascotaDTO: {
           nombre: this.desaparicionForm.get('nombreMascota')?.value,
@@ -173,23 +171,28 @@ export class Desaparicion implements OnInit{
 
       this.http.post(this.desaparicionApiUrl, desaparicionData).subscribe({
         next: () => {
-          if (isPlatformBrowser(this.platformId)) {
-            alert('Desaparición reportada exitosamente con ' + imagenes.length + ' imagen(es)');
-          }
-          this.router.navigate(['/perfil']);
+          this.loading = false;
+          this.router.navigate(['/profile']);
         },
         error: (error: any) => {
+          this.loading = false;
           console.error('Error al reportar desaparición:', error);
-          if (isPlatformBrowser(this.platformId)) {
-            alert('Error al reportar la desaparición. Por favor, intenta nuevamente.');
-          }
-          this.loading = false;
-        },
-        complete: () => {
-          this.loading = false;
         }
       });
     }
+  }
+
+  onLocationSelected(location: LocationData): void {
+    this.locationError = '';
+    // Guardar coordenadas en formato "lat, lng"
+    const latitud = `${location.lat.toFixed(6)}`;
+    const longitud = `${location.lng.toFixed(6)}`;
+    this.desaparicionForm.patchValue({ latitud, longitud });
+  }
+
+  onLocationCleared(): void {
+    this.locationError = 'La ubicación seleccionada debe estar dentro de Argentina';
+    this.desaparicionForm.patchValue({ latitud: '', longitud: '' });
   }
 }
 

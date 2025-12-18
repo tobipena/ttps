@@ -75,10 +75,14 @@ export class AuthService {
     
     this.currentUserSignal.set(user);
     
+    // Calcular timestamp de expiración (expiresIn está en segundos)
+    const expiresAt = Date.now() + (response.expiresIn * 1000);
+    
     this.platformService.setLocalStorage('currentUser', JSON.stringify(user));
     this.platformService.setLocalStorage('authData', JSON.stringify({
       token: response.token,
-      expiresIn: response.expiresIn
+      expiresIn: response.expiresIn,
+      expiresAt: expiresAt
     }));
   }
 
@@ -110,5 +114,15 @@ export class AuthService {
       return JSON.parse(authData).token;
     }
     return null;
+  }
+
+  isTokenExpired(): boolean {
+    const authData = this.platformService.getLocalStorage('authData');
+    if (!authData) {
+      return true;
+    }
+    
+    const { expiresAt } = JSON.parse(authData);
+    return Date.now() >= expiresAt;
   }
 }

@@ -11,8 +11,10 @@ import java.util.Date;
 public class DesaparicionDTO {
     @NotBlank(message = "El comentario es obligatorio")
     private String comentario;
-    @NotBlank(message = "La coordenada es obligatoria")
-    private String coordenada;
+    @NotNull(message = "La latitud es obligatoria")
+    private Double latitud;
+    @NotNull(message = "La longitud es obligatoria")
+    private Double longitud;
 
     //private byte[] foto;
 

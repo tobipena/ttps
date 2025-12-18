@@ -111,10 +111,15 @@
                 <!-- Ubicación -->
                 <div class="col-12">
                   <label class="form-label text-uppercase fw-semibold text-muted small">Última ubicación conocida *</label>
-                  <input type="text" class="form-control form-control-lg shadow-sm"
-                         formControlName="coordenada"
-                         placeholder="Ej: -34.9215, -57.9545 o 'Parque Central'">
-                  <div class="form-text">Dirección o coordenadas donde se perdió</div>
+                  <app-location-map
+                    (locationSelected)="onLocationSelected($event)"
+                    (locationCleared)="onLocationCleared()">
+                  </app-location-map>
+                  @if (locationError) {
+                    <div class="alert alert-danger mt-2 p-2">
+                      <small>{{ locationError }}</small>
+                    </div>
+                  }
                 </div>
 
                 <!-- Comentario -->
@@ -139,7 +144,7 @@
             Reportar Desaparición
           </button>
           <button type="button" class="btn btn-outline-secondary btn-lg shadow-sm"
-                  routerLink="/perfil">
+                  routerLink="/profile">
             Cancelar
           </button>
         </div>
