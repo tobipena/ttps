@@ -18,12 +18,12 @@ export interface Desaparicion {
   providedIn: 'root'
 })
 export class DesaparicionService {
-  private apiUrl = 'http://localhost:8080/api/desapariciones';
+  private apiUrl = 'http://localhost:8080/ttps/desapariciones';
 
   constructor(private http: HttpClient) {}
 
-  crear(desaparicion: Desaparicion): Observable<Desaparicion> {
-    return this.http.post<Desaparicion>(this.apiUrl, desaparicion);
+  crear(desaparicion: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, desaparicion);
   }
 
   obtenerPorUsuario(): Observable<Desaparicion[]> {
