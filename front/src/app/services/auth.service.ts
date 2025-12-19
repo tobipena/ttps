@@ -105,7 +105,17 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.currentUser() !== null;
+    // Verificar tanto en el signal como en localStorage
+    const hasSignal = this.currentUser() !== null;
+    const hasLocalStorage = this.platformService.getLocalStorage('currentUser') !== null && 
+                           this.platformService.getLocalStorage('authData') !== null;
+    
+    // Si hay datos en localStorage pero no en signal, cargarlos
+    if (!hasSignal && hasLocalStorage) {
+      this.loadUserFromStorage();
+    }
+    
+    return hasSignal || hasLocalStorage;
   }
 
   getToken(): string | null {

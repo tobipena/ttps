@@ -60,9 +60,6 @@ export class Profile implements OnInit {
   pendingPasswordUpdate: any = null;
   selectedCoordinates: { lat: number, lng: number } | null = null;
   selectedLocation: { ciudad: string, provincia: string } | null = null;
-  isLoadingLocation = false;
-  private map: any;
-  private marker: any;
 
   // Modal de edición
   showEditModal = false;
@@ -85,10 +82,9 @@ export class Profile implements OnInit {
     private readonly authService: AuthService,
     private readonly router: Router
   ) {}
-
+  
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      // Forzar que Angular detecte que el componente está listo
       Promise.resolve().then(() => {
         this.loadUserProfile();
       });
@@ -129,8 +125,7 @@ export class Profile implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar mascotas:', error);
-        this.isLoadingMascotas = false;
-        this.cdr.detectChanges();
+        this.isLoadingMascotas = false
       }
     });
   }
@@ -163,7 +158,6 @@ export class Profile implements OnInit {
 
         this.mascotaEditando = { ...mascota };
         this.showEditModal = true;
-        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar desapariciones:', error);
@@ -172,7 +166,6 @@ export class Profile implements OnInit {
         this.fechaDesaparicion = '';
         this.fechaDesaparicionOriginal = '';
         this.showEditModal = true;
-        this.cdr.detectChanges();
       }
     });
   }
@@ -183,7 +176,6 @@ export class Profile implements OnInit {
     this.desaparicionId = null;
     this.errorMessage = '';
     this.successMessage = '';
-    this.cdr.detectChanges();
   }
 
   guardarCambios(): void {
@@ -228,7 +220,6 @@ export class Profile implements OnInit {
               this.http.put(`${this.desaparicionesUrl}/${this.desaparicionId}`, desaparicionActualizada).subscribe({
                 next: () => {
                   this.successMessage = 'Mascota y fecha de desaparición actualizadas exitosamente';
-                  this.cdr.detectChanges();
 
                   setTimeout(() => {
                     this.cerrarModal();
@@ -237,7 +228,6 @@ export class Profile implements OnInit {
                 error: (error) => {
                   console.error('Error al actualizar fecha:', error);
                   this.successMessage = 'Mascota actualizada (fecha no se pudo actualizar)';
-                  this.cdr.detectChanges();
 
                   setTimeout(() => {
                     this.cerrarModal();
@@ -249,7 +239,6 @@ export class Profile implements OnInit {
         } else {
           // Solo se actualizó la mascota, no la fecha
           this.successMessage = 'Mascota actualizada exitosamente';
-          this.cdr.detectChanges();
 
           setTimeout(() => {
             this.cerrarModal();
@@ -259,7 +248,6 @@ export class Profile implements OnInit {
       error: (error) => {
         console.error('Error al actualizar mascota:', error);
         this.errorMessage = 'Error al actualizar la mascota. Por favor, intenta nuevamente.';
-        this.cdr.detectChanges();
       }
     });
   }
@@ -291,7 +279,6 @@ export class Profile implements OnInit {
 
         this.successMessage = 'Publicación eliminada exitosamente';
         this.showConfirmModal = false;
-        this.cdr.detectChanges();
 
         // Cerrar modal después de 1 segundo
         setTimeout(() => {
@@ -302,7 +289,6 @@ export class Profile implements OnInit {
         console.error('Error al eliminar publicación:', error);
         this.errorMessage = 'Error al eliminar la publicación. Por favor, intenta nuevamente.';
         this.showConfirmModal = false;
-        this.cdr.detectChanges();
       }
     });
   }
@@ -408,14 +394,9 @@ export class Profile implements OnInit {
           this.errorMessage = 'Error al actualizar el campo';
         }
 
-        // Forzar detección de cambios para mostrar el error inmediatamente
-        this.cdr.markForCheck();
-        this.cdr.detectChanges();
-
         // Limpiar mensaje de error después de 5 segundos
         setTimeout(() => {
           this.errorMessage = '';
-          this.cdr.detectChanges();
         }, 5000);
       }
     });
@@ -482,13 +463,8 @@ export class Profile implements OnInit {
         this.showConfirmPassword = false;
         this.errorMessage = '';
 
-        // Forzar detección de cambios para mostrar el mensaje inmediatamente
-        this.cdr.markForCheck();
-        this.cdr.detectChanges();
-
         setTimeout(() => {
           this.successMessage = '';
-          this.cdr.detectChanges();
         }, 3000);
       },
       error: (error) => {
@@ -500,34 +476,11 @@ export class Profile implements OnInit {
           this.errorMessage = 'Error al actualizar la contraseña';
         }
 
-        this.cdr.markForCheck();
-        this.cdr.detectChanges();
-
         setTimeout(() => {
           this.errorMessage = '';
-          this.cdr.detectChanges();
         }, 5000);
       }
     });
-  }
-
-  ngAfterViewInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadLeaflet();
-    }
-  }
-
-  private loadLeaflet(): void {
-    if (typeof (window as any).L === 'undefined') {
-      const leafletCss = document.createElement('link');
-      leafletCss.rel = 'stylesheet';
-      leafletCss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(leafletCss);
-
-      const leafletScript = document.createElement('script');
-      leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      document.head.appendChild(leafletScript);
-    }
   }
 
   openLocationModal(): void {
@@ -574,13 +527,9 @@ export class Profile implements OnInit {
         this.userProfile = updatedProfile;
         this.successMessage = 'Ubicación actualizada correctamente';
         this.closeLocationModal();
-        
-        this.cdr.markForCheck();
-        this.cdr.detectChanges();
 
         setTimeout(() => {
           this.successMessage = '';
-          this.cdr.detectChanges();
         }, 3000);
       },
       error: (error) => {
@@ -592,12 +541,8 @@ export class Profile implements OnInit {
           this.errorMessage = 'Error al actualizar la ubicación';
         }
 
-        this.cdr.markForCheck();
-        this.cdr.detectChanges();
-
         setTimeout(() => {
           this.errorMessage = '';
-          this.cdr.detectChanges();
         }, 5000);
       }
     });

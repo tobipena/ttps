@@ -2,7 +2,6 @@ import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { AuthService, RegisterRequest } from '../../services/auth.service';
 import { LocationMap, LocationData } from '../location-map/location-map';
 

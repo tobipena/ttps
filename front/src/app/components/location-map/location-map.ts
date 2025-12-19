@@ -120,12 +120,12 @@ export class LocationMap implements OnInit, AfterViewInit {
         this.isLoadingLocation = false;
         
         if (response?.ubicacion) {
-          const ciudad = response.ubicacion.municipio?.nombre || 
-                        response.ubicacion.departamento?.nombre || 
-                        null;
           const provincia = response.ubicacion.provincia?.nombre || null;
+          const ciudad = response.ubicacion.municipio?.nombre || 
+                        response.ubicacion.departamento?.nombre ||
+                        'Sin especificar';
           
-          if (ciudad && provincia) {
+          if (provincia) {
             this.selectedLocation = { ciudad, provincia };
             this.locationSelected.emit({
               lat,
@@ -134,7 +134,7 @@ export class LocationMap implements OnInit, AfterViewInit {
               provincia
             });
           } else {
-            // La API respondió pero sin datos válidos (fuera de Argentina)
+            // La API respondió pero sin provincia (fuera de Argentina)
             this.selectedLocation = null;
             this.locationCleared.emit();
           }

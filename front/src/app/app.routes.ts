@@ -4,6 +4,7 @@ import { Login } from './components/login/login';
 import { Register } from './components/register/register';
 import { Profile } from './components/profile/profile';
 import { Desaparicion } from './components/desaparicion/desaparicion';
+import { Listado } from './components/listado/listado';
 import { authGuard } from './guards/auth.guard';
 import { DesaparicionDetalle } from './components/desaparicion-detalle/desaparicion-detalle';
 
@@ -29,6 +30,10 @@ export const routes: Routes = [
     path: 'desaparicion',
     component: Desaparicion,
     canActivate: [authGuard]
+  },
+  {
+    path: 'listado',
+    component: Listado
   },
   {
     path: 'desaparicion/:id',

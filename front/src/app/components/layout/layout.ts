@@ -65,4 +65,8 @@ export class Layout {
   navigateToDesaparicion(): void {
     this.router.navigate(['/desaparicion']);
   }
+
+  navigateToListado(): void {
+    this.router.navigate(['/listado']);
+  }
 }
