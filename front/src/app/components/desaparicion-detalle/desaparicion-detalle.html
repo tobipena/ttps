@@ -1,20 +1,20 @@
 <div class="detalle-container">
-  @if (loading) {
+  @if (loading && !desaparicion) {
     <div class="loading-state">
       <div class="spinner"></div>
       <p>Cargando detalles...</p>
     </div>
   }
 
-  @if (error) {
+  @if (error && !desaparicion) {
     <div class="error-state">
-      <h2>❌ Error</h2>
+      <h2>Error</h2>
       <p>No se pudo cargar la información de la desaparición.</p>
       <button class="btn btn-primary" (click)="volver()">Volver al inicio</button>
     </div>
   }
 
-  @if (desaparicion && !loading && !error) {
+  @if (desaparicion) {
     <div class="detalle-card">
       <!-- Header con botón volver -->
       <div class="detalle-header">
@@ -29,12 +29,33 @@
       </div>
 
       <div class="detalle-body">
-        <!-- Galería de imágenes -->
+        <!-- Galería de imágenes con carrusel -->
         <div class="gallery-section">
-          @if (getPrimeraImagen(desaparicion.mascota)) {
-            <img [src]="'data:image/jpeg;base64,' + getPrimeraImagen(desaparicion.mascota)"
-                 [alt]="desaparicion.mascota.nombre"
-                 class="main-image">
+          @if (getTotalImagenes() > 0) {
+            <div class="carousel-container">
+              <img [src]="'data:image/jpeg;base64,' + getImagenActual()"
+                   [alt]="desaparicion.mascota.nombre"
+                   class="main-image">
+
+              <!-- Flechas de navegación -->
+              @if (getTotalImagenes() > 1) {
+                <button class="carousel-btn prev" (click)="prevImage()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <button class="carousel-btn next" (click)="nextImage()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+
+                <!-- Indicador de imagen actual -->
+                <div class="image-counter">
+                  {{ currentImageIndex + 1 }} / {{ getTotalImagenes() }}
+                </div>
+              }
+            </div>
           } @else {
             <div class="no-image">Sin imagen disponible</div>
           }
@@ -79,23 +100,40 @@
               <span class="info-label">Comentarios:</span>
               <span class="info-value">{{ desaparicion.comentario }}</span>
             </div>
-            <div class="info-item full-width">
-              <span class="info-label">Ubicación:</span>
-              <span class="info-value">{{ desaparicion.coordenada }}</span>
-            </div>
           </div>
 
-          <!-- Mapa -->
-          <div class="map-section">
-            <h3 class="map-title">Ubicación</h3>
-            @if (getCoordenadas(desaparicion.coordenada)) {
-              <div id="map" class="leaflet-map"></div>
-            } @else {
-              <div class="map-error">
-                <p>No se pudieron cargar las coordenadas del mapa</p>
-                <small>Coordenadas recibidas: {{ desaparicion.coordenada }}</small>
+          <!-- Sección de ubicación (dirección + mapa) -->
+
+          <!-- Loading mientras carga -->
+          @if (loadingMapa) {
+            <div class="map-loading">
+              <div class="spinner-small"></div>
+              <p>Cargando ubicación...</p>
+            </div>
+          }
+
+          <!-- Dirección y mapa (ocultos mientras carga) -->
+          <div [class.hidden]="loadingMapa">
+            <!-- Dirección -->
+            <div class="info-grid mt-3">
+              <div class="info-item full-width">
+                <span class="info-label">Última ubicación vista:</span>
+                <span class="info-value direccion">{{ direccion }}</span>
               </div>
-            }
+            </div>
+
+            <!-- Mapa -->
+            <div class="map-section">
+              <h3 class="map-title">Mapa</h3>
+              @if (desaparicion.latitud && desaparicion.longitud) {
+                <div id="map" class="leaflet-map"></div>
+              } @else {
+                <div class="map-error">
+                  <p>No se pudieron cargar las coordenadas del mapa</p>
+                  <small>Latitud: {{ desaparicion.latitud || 'N/A' }}, Longitud: {{ desaparicion.longitud || 'N/A' }}</small>
+                </div>
+              }
+            </div>
           </div>
         </div>
       </div>

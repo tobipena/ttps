@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, inject, AfterViewInit } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
@@ -28,6 +28,8 @@ interface Desaparicion {
   comentario: string;
   coordenada: string;
   fecha: string;
+  latitud: number;
+  longitud: number;
   mascota: Mascota;
 }
 
@@ -45,8 +47,17 @@ export class DesaparicionDetalle implements OnInit, AfterViewInit {
   private map: any = null;
   private mapInitialized = false;
 
+  // Carrusel de imágenes
+  currentImageIndex = 0;
+
+  // Dirección y mapa
+  direccion: string = '';
+  loadingMapa = true;
+  mapaListo = false;
+
   private apiUrl = 'http://localhost:8080/ttps/desapariciones';
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -65,12 +76,7 @@ export class DesaparicionDetalle implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.desaparicion && !this.mapInitialized && isPlatformBrowser(this.platformId)) {
-      const coords = this.getCoordenadas(this.desaparicion.coordenada);
-      if (coords) {
-        setTimeout(() => this.initMap(coords!), 300);
-      }
-    }
+    // El mapa se inicializa en loadDesaparicion cuando los datos están listos
   }
 
   loadDesaparicion(id: number) {
@@ -80,30 +86,106 @@ export class DesaparicionDetalle implements OnInit, AfterViewInit {
         this.desaparicion = data;
         this.loading = false;
 
-        // Inicializar mapa si ya está en el DOM
-        if (isPlatformBrowser(this.platformId)) {
-          const coords = this.getCoordenadas(data.coordenada);
-          if (coords) {
-            setTimeout(() => this.initMap(coords!), 300);
-          }
+        // FORZAR detección de cambios para que Angular renderice inmediatamente
+        this.cdr.detectChanges();
+
+        // Estas llamadas se hacen en paralelo DESPUÉS de mostrar la página
+        if (data.latitud && data.longitud) {
+          this.obtenerDireccion(data.latitud, data.longitud);
+        }
+
+        // Inicializar mapa con reintento hasta que el elemento esté disponible
+        if (isPlatformBrowser(this.platformId) && data.latitud && data.longitud) {
+          setTimeout(() => {
+            this.waitForMapElement({ lat: data.latitud, lng: data.longitud });
+          }, 0);
         }
       },
       error: (error) => {
         console.error('Error al cargar desaparición:', error);
         this.error = true;
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
+  private waitForMapElement(coords: { lat: number, lng: number }, retries: number = 0) {
+    const maxRetries = 20; // Aumentar intentos pero reducir delay
+    const mapElement = document.getElementById('map');
+
+    if (mapElement) {
+      console.log('Elemento del mapa encontrado, inicializando...');
+      this.initMap(coords);
+    } else if (retries < maxRetries) {
+      // Reducir delay a 100ms para que sea más rápido
+      setTimeout(() => this.waitForMapElement(coords, retries + 1), 100);
+    } else {
+      console.error('No se pudo encontrar el elemento del mapa después de varios intentos');
+      // Marcar como listo aunque falle para no dejar cargando indefinidamente
+      this.mapaListo = true;
+      this.checkMapaCompleto();
+    }
+  }
+
+  obtenerDireccion(lat: number, lng: number) {
+    // Usar Nominatim (OpenStreetMap) para geocoding inverso
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=es`;
+
+    this.http.get<any>(url).subscribe({
+      next: (response) => {
+        if (response && response.display_name) {
+          this.direccion = response.display_name;
+        } else if (response && response.address) {
+          // Construir dirección más legible
+          const addr = response.address;
+          const partes = [
+            addr.road,
+            addr.house_number,
+            addr.suburb || addr.neighbourhood,
+            addr.city || addr.town || addr.village,
+            addr.state,
+            addr.country
+          ].filter(Boolean);
+          this.direccion = partes.join(', ');
+        } else {
+          this.direccion = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        }
+        this.checkMapaCompleto();
+      },
+      error: (error) => {
+        console.error('Error al obtener dirección:', error);
+        this.direccion = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        this.checkMapaCompleto();
+      }
+    });
+  }
+
+  private checkMapaCompleto() {
+    // Solo mostrar mapa cuando dirección esté lista
+    if (this.direccion && this.mapaListo) {
+      this.loadingMapa = false;
+      this.cdr.detectChanges();
+    }
+  }
+
   private initMap(coords: { lat: number, lng: number }) {
-    if (this.mapInitialized || !isPlatformBrowser(this.platformId)) return;
+    if (this.mapInitialized || !isPlatformBrowser(this.platformId)) {
+      console.log('Mapa ya inicializado o no es browser');
+      return;
+    }
 
     const mapElement = document.getElementById('map');
-    if (!mapElement) return;
+    if (!mapElement) {
+      console.error('Elemento del mapa no encontrado en el DOM');
+      return;
+    }
 
     try {
-      this.map = L.map('map').setView([coords.lat, coords.lng], 15);
+      console.log('Inicializando mapa con coordenadas:', coords);
+
+      // Zoom 13 para mostrar más contexto de la zona
+      this.map = L.map('map').setView([coords.lat, coords.lng], 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
@@ -116,22 +198,16 @@ export class DesaparicionDetalle implements OnInit, AfterViewInit {
         .openPopup();
 
       this.mapInitialized = true;
+      this.mapaListo = true;
+      this.checkMapaCompleto();
+      console.log('Mapa inicializado exitosamente');
     } catch (e) {
       console.error('Error al inicializar mapa:', e);
+      this.mapaListo = true;
+      this.checkMapaCompleto();
     }
   }
 
-  getCoordenadas(coordenada: string): { lat: number, lng: number } | null {
-    try {
-      const coords = coordenada.split(',').map(c => parseFloat(c.trim()));
-      if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-        return { lat: coords[0], lng: coords[1] };
-      }
-    } catch (e) {
-      console.error('Error al parsear coordenadas:', e);
-    }
-    return null;
-  }
 
   formatearFecha(fecha: string): string {
     const date = new Date(fecha);
@@ -139,16 +215,33 @@ export class DesaparicionDetalle implements OnInit, AfterViewInit {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
     });
   }
 
-  getPrimeraImagen(mascota: Mascota): string | null {
-    if (mascota.imagenes && mascota.imagenes.length > 0) {
-      return mascota.imagenes[0].datos;
+
+  getImagenActual(): string | null {
+    if (this.desaparicion?.mascota.imagenes && this.desaparicion.mascota.imagenes.length > 0) {
+      return this.desaparicion.mascota.imagenes[this.currentImageIndex].datos;
     }
     return null;
+  }
+
+  getTotalImagenes(): number {
+    return this.desaparicion?.mascota.imagenes?.length || 0;
+  }
+
+  nextImage() {
+    if (this.desaparicion?.mascota.imagenes) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.desaparicion.mascota.imagenes.length;
+    }
+  }
+
+  prevImage() {
+    if (this.desaparicion?.mascota.imagenes) {
+      this.currentImageIndex = this.currentImageIndex === 0
+        ? this.desaparicion.mascota.imagenes.length - 1
+        : this.currentImageIndex - 1;
+    }
   }
 
   volver() {
