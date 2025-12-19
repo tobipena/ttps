@@ -1,0 +1,105 @@
+<div class="detalle-container">
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando detalles...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="error-state">
+      <h2>❌ Error</h2>
+      <p>No se pudo cargar la información de la desaparición.</p>
+      <button class="btn btn-primary" (click)="volver()">Volver al inicio</button>
+    </div>
+  }
+
+  @if (desaparicion && !loading && !error) {
+    <div class="detalle-card">
+      <!-- Header con botón volver -->
+      <div class="detalle-header">
+        <button class="btn-volver" (click)="volver()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver
+        </button>
+        <h1>Detalles de la Desaparición</h1>
+      </div>
+
+      <div class="detalle-body">
+        <!-- Galería de imágenes -->
+        <div class="gallery-section">
+          @if (getPrimeraImagen(desaparicion.mascota)) {
+            <img [src]="'data:image/jpeg;base64,' + getPrimeraImagen(desaparicion.mascota)"
+                 [alt]="desaparicion.mascota.nombre"
+                 class="main-image">
+          } @else {
+            <div class="no-image">Sin imagen disponible</div>
+          }
+        </div>
+
+        <!-- Información de la mascota -->
+        <div class="info-section">
+          <h2 class="section-title">Información de la Mascota</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Nombre:</span>
+              <span class="info-value">{{ desaparicion.mascota.nombre }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Animal:</span>
+              <span class="info-value">{{ desaparicion.mascota.animal }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Tamaño:</span>
+              <span class="info-value">{{ desaparicion.mascota.tamano }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Color:</span>
+              <span class="info-value">{{ desaparicion.mascota.color }}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="info-label">Descripción:</span>
+              <span class="info-value">{{ desaparicion.mascota.descripcion }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de la desaparición -->
+        <div class="info-section">
+          <h2 class="section-title">Información de la Desaparición</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Fecha:</span>
+              <span class="info-value">{{ formatearFecha(desaparicion.fecha) }}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="info-label">Comentarios:</span>
+              <span class="info-value">{{ desaparicion.comentario }}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="info-label">Ubicación:</span>
+              <span class="info-value">{{ desaparicion.coordenada }}</span>
+            </div>
+          </div>
+
+          <!-- Mapa -->
+          <div class="map-section">
+            <h3 class="map-title">Ubicación</h3>
+            @if (getCoordenadas(desaparicion.coordenada)) {
+              <div id="map" class="leaflet-map"></div>
+            } @else {
+              <div class="map-error">
+                <p>No se pudieron cargar las coordenadas del mapa</p>
+                <small>Coordenadas recibidas: {{ desaparicion.coordenada }}</small>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

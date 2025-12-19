@@ -4,6 +4,7 @@ import { Login } from './components/login/login';
 import { Register } from './components/register/register';
 import { Profile } from './components/profile/profile';
 import { Desaparicion } from './components/desaparicion/desaparicion';
+import { DesaparicionDetalle } from './components/desaparicion-detalle/desaparicion-detalle';
 
 export const routes: Routes = [
   {
@@ -25,5 +26,9 @@ export const routes: Routes = [
   {
     path: 'desaparicion',
     component: Desaparicion
+  },
+  {
+    path: 'desaparicion/:id',
+    component: DesaparicionDetalle
   }
 ];

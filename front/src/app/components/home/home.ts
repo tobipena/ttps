@@ -1,6 +1,7 @@
 import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { PlatformService } from '../../services/platform.service';
 
 interface Imagen {
@@ -32,7 +33,7 @@ interface Desaparicion {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -116,9 +117,6 @@ export class Home implements OnInit {
     return new Array(totalDots).fill(0);
   }
 
-  verDetalle(id: number) {
-    // Aquí puedes implementar la navegación al detalle
-  }
 
   getPrimeraImagen(mascota: Mascota): string | null {
     // Primero intentar con las nuevas imágenes

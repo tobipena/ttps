@@ -13,8 +13,8 @@
         @for (desaparicion of getVisibleCards(); track desaparicion.id) {
           <div class="mascota-card">
             <div class="card-header">
-              <span class="estado-badge" [ngClass]="desaparicion.mascota.estado.toLowerCase()">
-                {{ desaparicion.mascota.estado }}
+              <span class="estado-badge" [ngClass]="desaparicion.fecha">
+                {{ desaparicion.fecha | date:'dd/MM/yyyy' }}
               </span>
             </div>
 
@@ -30,9 +30,9 @@
               <h3 class="mascota-nombre">{{ desaparicion.mascota.nombre }}</h3>
               <p class="mascota-tipo">{{ desaparicion.mascota.animal }}</p>
               <p class="mascota-descripcion">{{ desaparicion.comentario }}</p>
-              <button class="btn-detalle" (click)="verDetalle(desaparicion.id)">
-                Ver mascota en detalle
-              </button>
+              <a [routerLink]="['/desaparicion', desaparicion.id]" class="btn-detalle">
+                Ver publicacion
+              </a>
             </div>
           </div>
         }
@@ -64,3 +64,4 @@
     }
   </div>
 </div>
+
