@@ -6,6 +6,9 @@ import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { EditableField } from './editable-field/editable-field';
 import { LocationMap, LocationData } from '../location-map/location-map';
+import {UsuarioService} from '../../services/usuario.service';
+import {MascotaService} from '../../services/mascota.service';
+import {DesaparicionService} from '../../services/desaparicion.service';
 
 interface UserProfile {
   id: number;
@@ -61,8 +64,6 @@ export class Profile implements OnInit {
   selectedCoordinates: { lat: number, lng: number } | null = null;
   selectedLocation: { ciudad: string, provincia: string } | null = null;
   isLoadingLocation = false;
-  private map: any;
-  private marker: any;
 
   // Modal de edición
   showEditModal = false;
@@ -74,16 +75,16 @@ export class Profile implements OnInit {
   // Modal de confirmación
   showConfirmModal = false;
 
-  private apiUrl = 'http://localhost:8080/ttps/usuarios';
-  private mascotasUrl = 'http://localhost:8080/ttps/mascotas';
-  private desaparicionesUrl = 'http://localhost:8080/ttps/desapariciones';
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private readonly http: HttpClient,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private usuarioService: UsuarioService,
+    private mascotaService: MascotaService,
+    private desaparicionService: DesaparicionService,
   ) {}
 
   ngOnInit(): void {
@@ -98,7 +99,7 @@ export class Profile implements OnInit {
   loadUserProfile(): void {
     this.isLoading = true;
 
-    this.http.get<UserProfile>(`${this.apiUrl}/me`).subscribe({
+    this.usuarioService.obtenerPerfil().subscribe({
       next: (profile) => {
         this.userProfile = profile;
         this.isLoading = false;
@@ -121,7 +122,7 @@ export class Profile implements OnInit {
   loadMascotas(usuarioId: number): void {
     this.isLoadingMascotas = true;
 
-    this.http.get<Mascota[]>(`${this.mascotasUrl}/usuario/${usuarioId}`).subscribe({
+    this.mascotaService.obtenerPorUsuario(usuarioId).subscribe({
       next: (mascotas) => {
         this.mascotas = mascotas;
         this.isLoadingMascotas = false;
@@ -145,7 +146,7 @@ export class Profile implements OnInit {
 
   editarMascota(mascota: Mascota): void {
     // Buscar la desaparición asociada a esta mascota
-    this.http.get<any[]>(this.desaparicionesUrl).subscribe({
+    this.desaparicionService.obtenerTodas().subscribe({
       next: (desapariciones) => {
         const desaparicion = desapariciones.find(d => d.mascota?.id === mascota.id);
         this.desaparicionId = desaparicion?.id || null;
@@ -155,7 +156,7 @@ export class Profile implements OnInit {
           // Convertir a formato yyyy-MM-dd para el input date
           const fecha = new Date(desaparicion.fecha);
           this.fechaDesaparicion = fecha.toISOString().split('T')[0];
-          this.fechaDesaparicionOriginal = this.fechaDesaparicion; // Guardar original
+          this.fechaDesaparicionOriginal = this.fechaDesaparicion;
         } else {
           this.fechaDesaparicion = '';
           this.fechaDesaparicionOriginal = '';
@@ -207,7 +208,7 @@ export class Profile implements OnInit {
 
 
     // Actualizar mascota
-    this.http.put(`${this.mascotasUrl}/${this.mascotaEditando.id}`, this.mascotaEditando).subscribe({
+    this.mascotaService.actualizar(this.mascotaEditando.id, this.mascotaEditando).subscribe({
       next: (mascotaActualizada: any) => {
         // Actualizar en el array local
         const index = this.mascotas.findIndex(m => m.id === this.mascotaEditando!.id);
@@ -217,33 +218,35 @@ export class Profile implements OnInit {
 
         // Si hay desaparición y se cambió la fecha, actualizarla
         if (fechaCambio) {
-          const fechaISO = new Date(this.fechaDesaparicion).toISOString();
-          this.http.get<any>(`${this.desaparicionesUrl}/${this.desaparicionId}`).subscribe({
-            next: (desaparicion) => {
-              const desaparicionActualizada = {
-                ...desaparicion,
-                fecha: fechaISO
-              };
+          // Obtener la desaparición actual para preservar todos sus campos
+          this.desaparicionService.obtenerTodas().subscribe({
+            next: (desapariciones) => {
+              const desaparicion = desapariciones.find(d => d.id === this.desaparicionId);
+              if (desaparicion) {
+                const desaparicionActualizada = {
+                  ...desaparicion,
+                };
 
-              this.http.put(`${this.desaparicionesUrl}/${this.desaparicionId}`, desaparicionActualizada).subscribe({
-                next: () => {
-                  this.successMessage = 'Mascota y fecha de desaparición actualizadas exitosamente';
-                  this.cdr.detectChanges();
+                this.desaparicionService.editar(this.desaparicionId!, desaparicionActualizada).subscribe({
+                  next: () => {
+                    this.successMessage = 'Mascota y fecha de desaparición actualizadas exitosamente';
+                    this.cdr.detectChanges();
 
-                  setTimeout(() => {
-                    this.cerrarModal();
-                  }, 1500);
-                },
-                error: (error) => {
-                  console.error('Error al actualizar fecha:', error);
-                  this.successMessage = 'Mascota actualizada (fecha no se pudo actualizar)';
-                  this.cdr.detectChanges();
+                    setTimeout(() => {
+                      this.cerrarModal();
+                    }, 1500);
+                  },
+                  error: (error) => {
+                    console.error('Error al actualizar fecha:', error);
+                    this.successMessage = 'Mascota actualizada (fecha no se pudo actualizar)';
+                    this.cdr.detectChanges();
 
-                  setTimeout(() => {
-                    this.cerrarModal();
-                  }, 1500);
-                }
-              });
+                    setTimeout(() => {
+                      this.cerrarModal();
+                    }, 1500);
+                  }
+                });
+              }
             }
           });
         } else {
@@ -282,7 +285,7 @@ export class Profile implements OnInit {
       return;
     }
 
-    this.http.delete(`${this.desaparicionesUrl}/${this.desaparicionId}`).subscribe({
+    this.desaparicionService.eliminar(this.desaparicionId).subscribe({
       next: () => {
         // Remover la mascota del array local (porque estaba asociada a la desaparición)
         if (this.mascotaEditando) {
@@ -377,7 +380,7 @@ export class Profile implements OnInit {
     // Actualizar el campo específico que se está editando
     updateData[field] = this.tempValue;
 
-    this.http.put<UserProfile>(`${this.apiUrl}/me`, updateData).subscribe({
+    this.usuarioService.actualizarPerfil(updateData).subscribe({
       next: (updatedProfile) => {
         this.userProfile = updatedProfile;
         this.successMessage = `${this.getFieldLabel(field)} actualizado correctamente`;
@@ -471,7 +474,7 @@ export class Profile implements OnInit {
       password: this.tempValue
     };
 
-    this.http.put<UserProfile>(`${this.apiUrl}/me`, updateData).subscribe({
+    this.usuarioService.actualizarPerfil(updateData).subscribe({
       next: (updatedProfile) => {
         this.userProfile = updatedProfile;
         this.successMessage = 'Contraseña actualizada correctamente';
@@ -569,12 +572,12 @@ export class Profile implements OnInit {
       longitud: this.selectedCoordinates.lng
     };
 
-    this.http.put<UserProfile>(`${this.apiUrl}/me`, updateData).subscribe({
+    this.usuarioService.actualizarPerfil(updateData).subscribe({
       next: (updatedProfile) => {
         this.userProfile = updatedProfile;
         this.successMessage = 'Ubicación actualizada correctamente';
         this.closeLocationModal();
-        
+
         this.cdr.markForCheck();
         this.cdr.detectChanges();
 

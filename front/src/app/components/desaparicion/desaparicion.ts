@@ -2,8 +2,8 @@ import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { DesaparicionService } from '../../services/desaparicion';
-import { HttpClient } from '@angular/common/http';
+import { DesaparicionService } from '../../services/desaparicion.service';
+import { UsuarioService } from '../../services/usuario.service';
 import { PlatformService } from '../../services/platform.service';
 import { LocationMap, LocationData } from '../location-map/location-map';
 
@@ -23,15 +23,13 @@ export class Desaparicion implements OnInit{
   usuarioId: number | null = null;
   locationError = '';
 
-  private desaparicionApiUrl = 'http://localhost:8080/ttps/desapariciones';
-  private usuariosApiUrl = 'http://localhost:8080/ttps/usuarios';
   private platformId = inject(PLATFORM_ID);
 
   constructor(
     private fb: FormBuilder,
     private desaparicionService: DesaparicionService,
+    private usuarioService: UsuarioService,
     private router: Router,
-    private http: HttpClient,
     private platformService: PlatformService
   ) {
     this.desaparicionForm = this.fb.group({
@@ -51,7 +49,7 @@ export class Desaparicion implements OnInit{
     // Solo ejecutar en el navegador, no en SSR
     if (isPlatformBrowser(this.platformId)) {
       // Obtener el ID del usuario autenticado
-      this.http.get<any>(`${this.usuariosApiUrl}/me`).subscribe({
+      this.usuarioService.obtenerPerfil().subscribe({
         next: (user) => {
           this.usuarioId = user.id;
         },
@@ -169,7 +167,7 @@ export class Desaparicion implements OnInit{
         usuarioId: this.usuarioId
       };
 
-      this.http.post(this.desaparicionApiUrl, desaparicionData).subscribe({
+      this.desaparicionService.crear(desaparicionData).subscribe({
         next: () => {
           this.loading = false;
           this.router.navigate(['/profile']);
