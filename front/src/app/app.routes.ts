@@ -4,6 +4,7 @@ import { Login } from './components/login/login';
 import { Register } from './components/register/register';
 import { Profile } from './components/profile/profile';
 import { Desaparicion } from './components/desaparicion/desaparicion';
+import { authGuard } from './guards/auth.guard';
 import { DesaparicionDetalle } from './components/desaparicion-detalle/desaparicion-detalle';
 
 export const routes: Routes = [
@@ -21,11 +22,13 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-    component: Profile
+    component: Profile,
+    canActivate: [authGuard]
   },
   {
     path: 'desaparicion',
-    component: Desaparicion
+    component: Desaparicion,
+    canActivate: [authGuard]
   },
   {
     path: 'desaparicion/:id',

@@ -1,17 +1,19 @@
-import { Component, OnInit, PLATFORM_ID, Inject, AfterViewInit } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService, RegisterRequest } from '../../services/auth.service';
+import { LocationMap, LocationData } from '../location-map/location-map';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LocationMap],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
-export class Register implements OnInit, AfterViewInit {
+export class Register implements OnInit {
   userData: RegisterRequest = {
     email: '',
     password: '',
@@ -23,10 +25,7 @@ export class Register implements OnInit, AfterViewInit {
   confirmPassword = '';
   errorMessage = '';
   isLoading = false;
-  selectedCoordinates: { lat: number, lng: number } | null = null;
-  
-  private map: any;
-  private marker: any;
+  selectedLocation: { ciudad: string, provincia: string } | null = null;
 
   constructor(
     private readonly authService: AuthService,
@@ -35,73 +34,18 @@ export class Register implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadLeaflet();
-    }
   }
 
-  ngAfterViewInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => this.initMap(), 500);
-    }
+  onLocationSelected(location: LocationData): void {
+    this.selectedLocation = { ciudad: location.ciudad, provincia: location.provincia };
+    this.userData.latitud = location.lat;
+    this.userData.longitud = location.lng;
   }
 
-  private loadLeaflet(): void {
-    if (typeof (window as any).L === 'undefined') {
-      const leafletCss = document.createElement('link');
-      leafletCss.rel = 'stylesheet';
-      leafletCss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(leafletCss);
-
-      const leafletScript = document.createElement('script');
-      leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      leafletScript.onload = () => {
-        setTimeout(() => this.initMap(), 100);
-      };
-      document.head.appendChild(leafletScript);
-    }
-  }
-
-  private initMap(): void {
-    if (typeof (window as any).L !== 'undefined' && !this.map) {
-      const L = (window as any).L;
-      // Centro de Argentina aproximado
-      this.map = L.map('map').setView([-38.4161, -63.6167], 4);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(this.map);
-
-      // Manejar clicks en el mapa
-      this.map.on('click', (e: any) => {
-        this.onMapClick(e);
-      });
-    }
-  }
-
-  private onMapClick(e: any): void {
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-
-    // Verificar que esté dentro de Argentina (aproximado)
-    if (lat < -55 || lat > -21 || lng < -73 || lng > -53) {
-      this.errorMessage = 'Por favor, seleccione una ubicación dentro de Argentina';
-      return;
-    }
-
-    this.selectedCoordinates = { lat, lng };
-    this.userData.latitud = lat;
-    this.userData.longitud = lng;
-    this.errorMessage = '';
-
-    // Remover marcador anterior si existe
-    if (this.marker) {
-      this.map.removeLayer(this.marker);
-    }
-
-    // Agregar nuevo marcador
-    const L = (window as any).L;
-    this.marker = L.marker([lat, lng]).addTo(this.map);
+  onLocationCleared(): void {
+    this.selectedLocation = null;
+    this.userData.latitud = undefined;
+    this.userData.longitud = undefined;
   }
 
   private validateForm(): boolean {
@@ -150,9 +94,15 @@ export class Register implements OnInit, AfterViewInit {
       return false;
     }
 
-    // Validar ubicación
-    if (!this.selectedCoordinates || this.userData.latitud === undefined || this.userData.longitud === undefined) {
-      this.errorMessage = 'Debe seleccionar una ubicación en el mapa';
+    // // Validar ubicación
+    // if (!this.selectedCoordinates || this.userData.latitud === undefined || this.userData.longitud === undefined) {
+    //   this.errorMessage = 'Debe seleccionar una ubicación en el mapa';
+    //   return false;
+    // }
+
+    // Validar que la ubicación esté en Argentina
+    if (!this.selectedLocation) {
+      this.errorMessage = 'La ubicación seleccionada debe estar dentro de Argentina';
       return false;
     }
 

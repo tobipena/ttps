@@ -18,7 +18,6 @@ public class AuthController {
     private final TokenService tokenService;
 
     private static final int TOKEN_EXPIRATION = 3600000; // 1 hora en milisegundos
-
     public AuthController(AuthService authService, TokenService tokenService) {
         this.authService = authService;
         this.tokenService = tokenService;

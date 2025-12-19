@@ -72,13 +72,33 @@
 
       <div class="form-group">
         <label>Ubicación</label>
-        <p class="help-text">Haz clic en el mapa para seleccionar tu ubicación</p>
-        <div id="map" class="map-container"></div>
-        @if (selectedCoordinates) {
+        <app-location-map
+          (locationSelected)="onLocationSelected($event)"
+          (locationCleared)="onLocationCleared()">
+        </app-location-map>
+        @if (selectedLocation) {
+          <div class="location-info-success mt-3">
+            <div class="d-flex align-items-center mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success me-2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <strong class="text-success">Ubicación válida</strong>
+            </div>
+            <div class="mb-1">
+              <small class="text-muted d-block"><strong>Ciudad:</strong> {{ selectedLocation.ciudad }}</small>
+              <small class="text-muted d-block"><strong>Provincia:</strong> {{ selectedLocation.provincia }}</small>
+            </div>
+            <small class="text-muted d-block mt-2">
+              <strong>Coordenadas:</strong> {{ userData.latitud?.toFixed(4) }}, {{ userData.longitud?.toFixed(4) }}
+            </small>
+          </div>
+        }
+        <!--  @else if (selectedCoordinates) {
           <p class="coordinates-text">
             Coordenadas seleccionadas: {{ selectedCoordinates.lat.toFixed(4) }}, {{ selectedCoordinates.lng.toFixed(4) }}
           </p>
-        }
+        } -->
       </div>
 
       @if (errorMessage) {

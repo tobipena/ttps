@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class Layout {
   showDropdown = false;
+  showLogoutModal = false;
 
   constructor(
     public authService: AuthService,
@@ -47,10 +48,19 @@ export class Layout {
     this.router.navigate(['/']);
   }
 
-  logout(): void {
+  showLogoutConfirmation(): void {
     this.showDropdown = false;
+    this.showLogoutModal = true;
+  }
+
+  confirmLogout(): void {
+    this.showLogoutModal = false;
     this.authService.logout();
     this.router.navigate(['/']);
+  }
+
+  cancelLogout(): void {
+    this.showLogoutModal = false;
   }
   navigateToDesaparicion(): void {
     this.router.navigate(['/desaparicion']);

@@ -10,8 +10,8 @@ import java.util.Date;
 public class DesaparicionEditDTO {
     @NotBlank(message = "El comentario es obligatorio")
     private String comentario;
-    @NotBlank(message = "La coordenada es obligatoria")
-    private String coordenada;
+    private Double latitud;
+    private Double longitud;
     @NotNull(message = "La fecha es obligatoria")
     private Date fecha;
 }

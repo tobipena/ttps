@@ -10,7 +10,8 @@ import java.util.List;
 public class DesaparicionResponseDTO {
     private Long id;
     private String comentario;
-    private String coordenada;
+    private Double latitud;
+    private Double longitud;
     private byte[] foto;
     private Date fecha;
     private MascotaSimpleDTO mascota;

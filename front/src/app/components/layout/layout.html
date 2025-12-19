@@ -31,7 +31,7 @@
                   </svg>
                   <span class="ms-2">Mi Perfil</span>
                 </button>
-                <button class="dropdown-item" (click)="logout()">
+                <button class="dropdown-item" (click)="showLogoutConfirmation()">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
@@ -102,6 +102,30 @@
       </button>
     </div>
   </div>
-</nav><main class="main-content">
+</nav>
+
+<!-- Modal de confirmación de cierre de sesión -->
+@if (showLogoutModal) {
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar cierre de sesión</h5>
+          <button type="button" class="btn-close" (click)="cancelLogout()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Estás seguro de que deseas cerrar sesión?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelLogout()">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="confirmLogout()">Cerrar Sesión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
+
+<main class="main-content">
   <router-outlet></router-outlet>
 </main>
